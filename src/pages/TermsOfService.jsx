@@ -46,10 +46,10 @@ export default function TermsOfService() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
+      <main className="max-w-5xl mx-auto px-6 pt-32 pb-12">
         {/* Document Header */}
         <div className="text-center mb-12 pb-8 border-b border-purple-800/30">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-900/50 border border-purple-700/50 rounded-full mt-10 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-900/50 border border-purple-700/50 rounded-full mb-6">
             <FileText className="w-4 h-4 text-purple-400" />
             <span className="text-sm font-medium text-purple-300">Linee Guida</span>
           </div>

@@ -385,7 +385,7 @@ export default function Support() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <Header />
       
-      <main className="max-w-5xl mx-auto px-4 md:px-6 py-12">
+      <main className="max-w-5xl mx-auto px-4 md:px-6 pt-32 pb-12">
         <HeroSection />
         <TransparencyBox />
         <SupportBenefits />
