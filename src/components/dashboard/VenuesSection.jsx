@@ -64,35 +64,6 @@ export default function VenuesSection() {
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!formData.name.trim()) {
-  //     toast.error("Il nome del locale è obbligatorio");
-  //     return;
-  //   }
-
-  //   try {
-  //     setSubmitting(true);
-  //     const newVenue = await apiClient.createVenue({
-  //       name: formData.name,
-  //       address: formData.address || null,
-  //       capacity: formData.capacity ? parseInt(formData.capacity) : 50,
-  //       notes: formData.notes || null
-  //     });
-      
-  //     setVenues([...venues, newVenue]);
-  //     setFormData({ name: '', address: '', capacity: '', notes: '' });
-  //     setShowAddForm(false);
-
-  //     toast.success("Locale aggiunto con successo");
-  //   } catch (error) {
-  //     console.error('Error creating venue:', error);
-  //     toast.error("Impossibile aggiungere il locale");
-  //   } finally {
-  //     setSubmitting(false);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
