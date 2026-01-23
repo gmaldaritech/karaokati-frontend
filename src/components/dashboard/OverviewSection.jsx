@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-//import { Music, MapPin, QrCode, Power, RefreshCw, Download, Printer, Share2, Loader2 } from "lucide-react";
 import { Music, MapPin, QrCode, Power, RefreshCw, Download, Printer, Share2, ArrowRight, Sparkles, Calendar, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { apiClient } from "@/api/apiClient";
-//import { toast } from "@/components/ui/use-toast";
 import { toast } from "sonner";
 import { generateQRPrintHTML } from "@/components/QRCodePrintTemplate.jsx";
 
@@ -34,7 +32,6 @@ export default function OverviewSection(onSectionChange) {
       const colors = ['4C1D95'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       
-      // const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(entryUrl)}&color=${randomColor}&bgcolor=ffffff&qzone=1&format=png`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(entryUrl)}&color=${randomColor}&bgcolor=ffffff&qzone=1&format=png`;
       setQrCodeUrl(qrUrl);
     }
@@ -61,11 +58,6 @@ export default function OverviewSection(onSectionChange) {
 
     } catch (error) {
       console.error('Errore nel caricamento dashboard:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile caricare i dati della dashboard",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile caricare i dati della dashboard");
     } finally {
       setLoading(false);
@@ -82,11 +74,6 @@ export default function OverviewSection(onSectionChange) {
 
   const handleDownloadQRCode = async () => {
     if (!qrCodeUrl) {
-      // toast({
-      //   title: "Errore",
-      //   description: "QR Code non ancora caricato",
-      //   variant: "destructive",
-      // });
       return;
     }
 
@@ -99,34 +86,23 @@ export default function OverviewSection(onSectionChange) {
       link.download = `qrcode-${user?.stage_name || 'karaokati'}.png`;
       link.click();
       window.URL.revokeObjectURL(url);
-      
-      // toast({
-      //   title: "Successo",
-      //   description: "QR Code scaricato",
-      // });
     } catch (error) {
       console.error('Error downloading QR code:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile scaricare il QR Code",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile scaricare il QR Code");
     }
   };
 
   const handlePrintQRCode = async () => {
     if (!qrCodeUrl) {
-      // toast({
-      //   title: "Errore",
-      //   description: "QR Code non ancora caricato",
-      //   variant: "destructive",
-      // });
       return;
     }
 
     try {
-      // Crea un'immagine e aspetta che si carichi
+      // 🆕 URL PayPal per QR code donazione
+      const paypalUrl = "https://www.paypal.com/donate/?hosted_button_id=N2MW8AJGQ6KN6&locale.x=it_IT&currency_code=EUR&country.x=IT";
+      const paypalQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paypalUrl)}`;
+      
+      // Crea un'immagine e aspetta che si carichi (QR principale)
       const img = new Image();
       img.crossOrigin = "anonymous";
 
@@ -139,23 +115,37 @@ export default function OverviewSection(onSectionChange) {
         ctx.drawImage(img, 0, 0);
         const base64data = canvas.toDataURL('image/png');
         
-        // 🎯 Usa il template
-        const printHTML = generateQRPrintHTML(user, base64data);
+        // 🆕 Carica QR code PayPal
+        const paypalImg = new Image();
+        paypalImg.crossOrigin = "anonymous";
         
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(printHTML);
-        printWindow.document.close();
+        paypalImg.onload = function() {
+          // Converti QR PayPal in base64
+          const paypalCanvas = document.createElement('canvas');
+          const paypalCtx = paypalCanvas.getContext('2d');
+          paypalCanvas.width = paypalImg.width;
+          paypalCanvas.height = paypalImg.height;
+          
+          paypalCtx.drawImage(paypalImg, 0, 0);
+          const paypalBase64 = paypalCanvas.toDataURL('image/png');
+          
+          // Stampa con entrambi i QR code
+          printWithIframe(base64data, paypalBase64);
+        };
+        
+        paypalImg.onerror = function() {
+          // Fallback: stampa solo con QR principale
+          console.warn("Impossibile caricare QR PayPal, uso placeholder");
+          printWithIframe(base64data, null);
+        };
+        
+        paypalImg.src = paypalQrUrl;
       };
       
       img.onerror = function() {
-        // Usa il nostro template ma con placeholder invece dell'immagine
-        const printHTML = generateQRPrintHTML(user, null); // Passa null invece del base64
-        
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(printHTML);
-        printWindow.document.close();
-        printWindow.print();
-        
+        // Fallback: nessun QR caricato
+        console.warn("Impossibile caricare QR principale");
+        printWithIframe(null, null);
         toast.warning("QR code non caricato, stampato con placeholder");
       };
       
@@ -165,15 +155,38 @@ export default function OverviewSection(onSectionChange) {
       console.error('Error preparing print:', error);
       toast.error("Impossibile preparare la stampa");
     }
+
+    // 🆕 Funzione helper per evitare duplicazione codice iframe
+    function printWithIframe(mainQrBase64, paypalQrBase64) {
+      const printHTML = generateQRPrintHTML(user, mainQrBase64, paypalQrBase64);
+      
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0px';
+      iframe.style.height = '0px';
+      iframe.style.border = 'none';
+      iframe.style.visibility = 'hidden';
+      
+      document.body.appendChild(iframe);
+      
+      iframe.onload = () => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        
+        // Rimuovi iframe dopo stampa
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      };
+      
+      iframe.contentDocument.open();
+      iframe.contentDocument.write(printHTML);
+      iframe.contentDocument.close();
+    }
   };
 
   const handleShareQRCode = async () => {
     if (!user?.qr_code_id) {
-      // toast({
-      //   title: "Errore",
-      //   description: "QR Code ID non disponibile",
-      //   variant: "destructive",
-      // });
       toast.error("QR Code ID non disponibile");
       return;
     }
@@ -192,19 +205,11 @@ export default function OverviewSection(onSectionChange) {
         console.log('Error sharing:', error);
         // Fallback to copying URL
         navigator.clipboard.writeText(entryUrl);
-        // toast({
-        //   title: "Successo",
-        //   description: "URL di ingresso copiato negli appunti",
-        // });
         toast.success("URL di ingresso copiato negli appunti");
       }
     } else {
       // Fallback for browsers without Web Share API
       navigator.clipboard.writeText(entryUrl);
-      // toast({
-      //   title: "Successo",
-      //   description: "URL di ingresso copiato negli appunti",
-      // });
       toast.success("URL di ingresso copiato negli appunti");
     }
   };
@@ -240,66 +245,6 @@ export default function OverviewSection(onSectionChange) {
           </div>
           
           <div className="grid md:grid-cols-4 gap-4">
-            {/* <button 
-              onClick={() => onSectionChange?.("venues")}
-              className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl hover:border-purple-600/50 hover:bg-gray-800 transition-all text-left group"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-blue-900/50 border border-blue-700/50 rounded-full flex items-center justify-center text-xs font-bold text-blue-400">1</div>
-                <MapPin className="w-4 h-4 text-blue-400" />
-              </div>
-              <h4 className="font-semibold text-white text-sm mb-1">Crea un Locale</h4>
-              <p className="text-xs text-gray-400">Aggiungi il locale dove fai le serate</p>
-              <div className="flex items-center gap-1 mt-2 text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                Vai ai Locali <ArrowRight className="w-3 h-3" />
-              </div>
-            </button>
-
-            <button 
-              onClick={() => onSectionChange?.("catalog")}
-              className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl hover:border-purple-600/50 hover:bg-gray-800 transition-all text-left group"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-orange-900/50 border border-orange-700/50 rounded-full flex items-center justify-center text-xs font-bold text-orange-400">2</div>
-                <Music className="w-4 h-4 text-orange-400" />
-              </div>
-              <h4 className="font-semibold text-white text-sm mb-1">Carica il Catalogo</h4>
-              <p className="text-xs text-gray-400">Importa o aggiungi le tue canzoni</p>
-              <div className="flex items-center gap-1 mt-2 text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                Vai al Catalogo <ArrowRight className="w-3 h-3" />
-              </div>
-            </button>
-
-            <button 
-              onClick={() => onSectionChange?.("venues")}
-              className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl hover:border-purple-600/50 hover:bg-gray-800 transition-all text-left group"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-green-900/50 border border-green-700/50 rounded-full flex items-center justify-center text-xs font-bold text-green-400">3</div>
-                <Power className="w-4 h-4 text-green-400" />
-              </div>
-              <h4 className="font-semibold text-white text-sm mb-1">Attiva la Serata</h4>
-              <p className="text-xs text-gray-400">Attiva il locale per ricevere prenotazioni</p>
-              <div className="flex items-center gap-1 mt-2 text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                Vai ai Locali <ArrowRight className="w-3 h-3" />
-              </div>
-            </button>
-
-            <button 
-              onClick={() => onSectionChange?.("bookings")}
-              className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl hover:border-purple-600/50 hover:bg-gray-800 transition-all text-left group"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-pink-900/50 border border-pink-700/50 rounded-full flex items-center justify-center text-xs font-bold text-pink-400">4</div>
-                <Calendar className="w-4 h-4 text-pink-400" />
-              </div>
-              <h4 className="font-semibold text-white text-sm mb-1">Gestisci Prenotazioni</h4>
-              <p className="text-xs text-gray-400">Accetta le richieste dei clienti</p>
-              <div className="flex items-center gap-1 mt-2 text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                Vai alle Prenotazioni <ArrowRight className="w-3 h-3" />
-              </div>
-            </button> */}
-
             <div className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 bg-blue-900/50 border border-blue-700/50 rounded-full flex items-center justify-center text-xs font-bold text-blue-400">1</div>
@@ -323,8 +268,8 @@ export default function OverviewSection(onSectionChange) {
                 <div className="w-6 h-6 bg-green-900/50 border border-green-700/50 rounded-full flex items-center justify-center text-xs font-bold text-green-400">3</div>
                 <Power className="w-4 h-4 text-green-400" />
               </div>
-              <h4 className="font-semibold text-white text-sm mb-1">Attiva la Serata</h4>
-              <p className="text-xs text-gray-400">Attiva il locale per ricevere prenotazioni</p>
+              <h4 className="font-semibold text-white text-sm mb-1">Avvia la Serata</h4>
+              <p className="text-xs text-gray-400">Avvia la serata in un locale per ricevere prenotazioni</p>
             </div>
 
             <div className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl">
@@ -378,13 +323,13 @@ export default function OverviewSection(onSectionChange) {
                     </div>
                     <div className="flex items-center gap-2">
                       <Power className="w-4 h-4 text-green-400" />
-                      <div className="text-sm text-green-400">Serata Attiva</div>
+                      <div className="text-sm text-green-400">Serata Avviata</div>
                     </div>
                   </>
                 ) : loading ? (
                   <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
                 ) : (
-                  <div className="text-sm text-gray-400">Nessuna serata attivata</div>
+                  <div className="text-sm text-gray-400">Nessuna serata avviata</div>
                 )}
               </div>
             </div>
@@ -455,16 +400,6 @@ export default function OverviewSection(onSectionChange) {
                   Condividi
                 </Button>
               </div>
-              {/* <div className="mt-6 w-full">
-                <Button 
-                  variant="ghost" 
-                  className="w-full text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
-                  onClick={handleRefreshQRCode}
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Rigenera QR Code
-                </Button>
-              </div> */}
             </div>
           </CardContent>
         </Card>

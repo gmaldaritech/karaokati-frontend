@@ -641,7 +641,7 @@ const handleSendMessage = async () => {
                   <h1 className="text-xl md:text-2xl font-bold">Karaokati Assistant</h1>
                   <p className="text-purple-100 text-xs md:text-sm">
                     {sessionData ? 
-                      `${sessionData.active_venue.name} • Serata attiva 🎤` : 
+                      `${sessionData.active_venue.name} • Serata avviata 🎤` : 
                       "Connessione in corso..."
                     }
                   </p>

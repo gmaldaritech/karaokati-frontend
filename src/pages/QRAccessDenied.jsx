@@ -12,17 +12,11 @@ export default function QRAccessDenied() {
     qr_expired: {
       mainIcon: XCircle,
       smallIcon: Clock,
-      title: "QR Code Scaduto",
+      title: "QR Code scaduto",
       description: "Il QR code che hai scansionato non è più valido",
       detailsTitle: "Sessione scaduta",
       detailsText: "I QR code hanno una validità di 6 ore per motivi di sicurezza. Questo codice è stato generato troppo tempo fa e non è più utilizzabile.",
       howToTitle: "Come risolvere",
-    //   steps: [
-    //     "Chiedi al DJ di generare un nuovo QR code",
-    //     "Scansiona il nuovo codice",
-    //     "Inizia a prenotare le tue canzoni preferite! 🎤"
-    //   ],
-    //   helpNote: "Il DJ può generare un nuovo QR code dalla sua dashboard in qualsiasi momento"
 	steps: [
 		"Scansiona il nuovo codice",
 		"Inizia a prenotare le tue canzoni preferite! 🎤"
@@ -31,13 +25,13 @@ export default function QRAccessDenied() {
     no_active_venue: {
       mainIcon: XCircle,
       smallIcon: MapPin,
-      title: "Nessun Locale Attivo",
-      description: "Il DJ non ha ancora attivato la serata",
+      title: "Nessuna serata avviata",
+      description: "Il DJ non ha ancora avviato la serata",
       detailsTitle: "Locale non configurato",
-      detailsText: "Il DJ deve attivare un locale dalla dashboard prima che tu possa prenotare le canzoni. La configurazione richiede solo pochi secondi.",
+      detailsText: "Il DJ deve ancora avviare la serata prima che tu possa prenotare le canzoni. La configurazione richiede solo pochi secondi.",
       howToTitle: "Come risolvere",
       steps: [
-        "Attendi qualche secondo che il DJ attiva il locale",
+        "Attendi qualche secondo che il DJ avvii la serata nel locale",
         "Scansiona di nuovo il QR code"
       ],
       //helpNote: "Il DJ può attivare un locale dalla dashboard in pochi secondi"
@@ -45,7 +39,7 @@ export default function QRAccessDenied() {
     qr_not_found: {
       mainIcon: XCircle,
       smallIcon: AlertTriangle,
-      title: "QR Code Non Trovato",
+      title: "QR Code non trovato",
       description: "Il QR code scansionato non esiste o non è valido",
       detailsTitle: "Codice non riconosciuto",
       detailsText: "Il QR code che hai scansionato non corrisponde a nessun DJ registrato nel sistema. Potrebbe essere un codice errato o danneggiato.",
@@ -80,15 +74,6 @@ export default function QRAccessDenied() {
   const MainIcon = error.mainIcon;
   const SmallIcon = error.smallIcon;
 
-  const handleRetry = () => {
-    // Ricarica la pagina o torna al QR entry
-    if (qrCodeId) {
-      window.location.href = `/sessions/entry/${qrCodeId}`;
-    } else {
-      window.location.reload();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
       {/* Decorative elements */}
@@ -99,14 +84,9 @@ export default function QRAccessDenied() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-2">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-              <Mic2 className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Karaokati
-            </span>
+            <img src="/logo.png" alt="Karaokati" className="h-10 w-auto" />
           </div>
         </div>
 
@@ -165,17 +145,6 @@ export default function QRAccessDenied() {
                 ))}
               </div>
             </div>
-
-            {/* 🆕 Retry Button */}
-            {/* <div className="mb-6">
-              <Button
-                onClick={handleRetry}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 py-3"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Riprova
-              </Button>
-            </div> */}
 
             {/* Help Note */}
             <div className="text-center">

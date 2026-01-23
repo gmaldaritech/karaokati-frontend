@@ -12,7 +12,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import ConfirmDialog from "../ConfirmDialog";
-//import { toast } from "@/components/ui/use-toast";
 import { apiClient } from "@/api/apiClient";
 import { toast } from "sonner";
 
@@ -64,11 +63,6 @@ export default function CatalogSection() {
       setTotalSongs(response.total);
     } catch (error) {
       console.error('Error loading songs:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile caricare il catalogo",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile caricare il catalogo")
     } finally {
       setLoading(false);
@@ -87,18 +81,9 @@ export default function CatalogSection() {
       setNewSong("");
       setShowAddSongDialog(false);
       await loadSongs(); // Reload to get updated list
-      // toast({
-      //   title: "Successo", 
-      //   description: "Canzone aggiunta al catalogo",
-      // });
       toast.success("Canzone aggiunta al catalogo")
     } catch (error) {
       console.error('Error adding song:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile aggiungere la canzone",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile aggiungere la canzone")
     } finally {
       setSubmitting(false);
@@ -110,25 +95,21 @@ export default function CatalogSection() {
     setShowDeleteDialog(true);
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    // Scroll to top della pagina
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const proceedWithDeleteSong = async () => {
     if (!songToDelete) return;
     
     try {
       await apiClient.deleteSong(songToDelete);
       await loadSongs();
-      
-      // toast({
-      //   title: "Successo",
-      //   description: "Canzone eliminata dal catalogo",
-      // });
       toast.success("Canzone eliminata dal catalogo");
     } catch (error) {
       console.error('Error deleting song:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile eliminare la canzone",
-      //   variant: "destructive",
-      // });
     } finally {
       setShowDeleteDialog(false);
       setSongToDelete(null);
@@ -145,18 +126,8 @@ export default function CatalogSection() {
       setSongs([]);
       setTotalSongs(0);
       setCurrentPage(1);
-      
-      // toast({
-      //   title: "Successo",
-      //   description: "Catalogo eliminato completamente",
-      // });
     } catch (error) {
       console.error('Error clearing catalog:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile eliminare il catalogo",
-      //   variant: "destructive",
-      // });
     }
   };
 
@@ -176,11 +147,6 @@ export default function CatalogSection() {
 
   const handleImportExcel = async () => {
     if (!selectedFile) {
-      // toast({
-      //   title: "Errore", 
-      //   description: "Seleziona prima un file Excel",
-      //   variant: "destructive",
-      // });
       toast.error("Seleziona prima un file Excel");
       return;
     }
@@ -201,11 +167,6 @@ export default function CatalogSection() {
       const data = await readExcelFile(selectedFile);
       
       if (data.length === 0) {
-        // toast({
-        //   title: "Errore",
-        //   description: "Il file Excel è vuoto o non contiene dati validi",
-        //   variant: "destructive",
-        // });
         toast.error("Il file Excel è vuoto o non contiene dati validi");
         return;
       }
@@ -222,134 +183,13 @@ export default function CatalogSection() {
       setShowReplaceDialog(false);
       loadSongs();
       toast.success("Canzoni importate con successo")
-      // toast({
-      //   title: "Successo",
-      //   description: `${totalSongs > 0 ? 'Catalogo sostituito! ' : ''}${data.length} canzoni importate con successo`,
-      // });
-      
     } catch (error) {
       console.error('Error importing Excel:', error);
       toast.error("Impossibile importare il file Excel")
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile importare il file Excel",
-      //   variant: "destructive",
-      // });
     } finally {
       setImporting(false);
     }
   };
-
-  // 🆕 Funzione per generazione da cartella
-  // const generateCatalogFromFolder = async () => {
-  //   // Controlla se il browser supporta l'API moderna
-  //   if ('showDirectoryPicker' in window) {
-  //     try {
-  //       setGenerating(true);
-  //       const dirHandle = await window.showDirectoryPicker();
-  //       const audioFiles = [];
-
-  //       // Scansiona ricorsivamente la cartella
-  //       async function scanDirectory(dirHandle, path = '') {
-  //         for await (const entry of dirHandle.values()) {
-  //           if (entry.kind === 'file') {
-  //             // Controlla se è un file audio
-  //             audioFiles.push(entry.name);
-  //             // if (/\.(mp3|wav|flac|aac|mid|midi|kar|ogg|m4a)$/i.test(entry.name)) {
-  //             //   audioFiles.push(path + entry.name);
-  //             // }
-  //           } else if (entry.kind === 'directory') {
-  //             // Scansiona sottocartelle ricorsivamente
-  //             await scanDirectory(entry, path + entry.name + '/');
-  //           }
-  //         }
-  //       }
-
-  //       await scanDirectory(dirHandle);
-        
-  //       if (audioFiles.length === 0) {
-  //         // toast({
-  //         //   title: "Nessun File Audio",
-  //         //   description: "Nessun file audio trovato nella cartella selezionata",
-  //         //   variant: "destructive",
-  //         // });
-  //         toast.error("Nessun file audio trovato nella cartella selezionata");
-  //         return;
-  //       }
-
-  //       // 🔥 Genera Excel invece di CSV usando XLSX
-  //       try {
-  //         // Importa XLSX dinamicamente
-  //         const XLSX = await import('xlsx');
-          
-  //         const workbook = XLSX.utils.book_new();
-  //         const worksheet = XLSX.utils.aoa_to_sheet([
-  //           ['Titolo Canzone'],
-  //           ...audioFiles.map(file => [file])
-  //         ]);
-  //         XLSX.utils.book_append_sheet(workbook, worksheet, 'Catalogo');
-
-  //         // Download Excel
-  //         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  //         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  //         const link = document.createElement("a");
-  //         link.href = URL.createObjectURL(blob);
-  //         link.download = `catalogo_da_cartella_${new Date().toLocaleDateString("it-IT").replace(/\//g, "-")}.xlsx`;
-  //         link.click();
-          
-  //         // toast({
-  //         //   title: "🎉 Catalogo Excel Generato!",
-  //         //   description: `${audioFiles.length} file audio salvati in Excel`,
-  //         // });
-  //         toast.success("🎉 Catalogo Excel Generato!");
-          
-  //       } catch (xlsxError) {
-  //         console.error('XLSX Error, falling back to CSV:', xlsxError);
-          
-  //         // Fallback a CSV se XLSX non funziona
-  //         const csvContent = "Titolo Canzone\n" + 
-  //           audioFiles.map(file => `"${file}"`).join("\n");
-          
-  //         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  //         const link = document.createElement("a");
-  //         link.href = URL.createObjectURL(blob);
-  //         link.download = `catalogo_da_cartella_${new Date().toLocaleDateString("it-IT").replace(/\//g, "-")}.csv`;
-  //         link.click();
-          
-  //         // toast({
-  //         //   title: "🎉 Catalogo CSV Generato!",
-  //         //   description: `${audioFiles.length} file audio salvati in CSV (Excel non disponibile)`,
-  //         // });
-  //         toast.success("🎉 Catalogo CSV Generato!");
-
-  //       }
-        
-  //       setShowGenerateDialog(false);
-        
-  //     } catch (error) {
-  //       if (error.name !== 'AbortError') {
-  //         console.error('Error accessing folder:', error);
-  //         // toast({
-  //         //   title: "Errore",
-  //         //   description: "Impossibile accedere alla cartella selezionata",
-  //         //   variant: "destructive",
-  //         // });
-  //         toast.error("Impossibile accedere alla cartella selezionata");
-  //       }
-  //     } finally {
-  //       setGenerating(false);
-  //     }
-  //   } else {
-  //     // FALLBACK per Firefox/Safari
-  //     setGenerating(false);
-  //     // toast({
-  //     //   title: "Browser Non Supportato",
-  //     //   description: "Per selezionare cartelle usa Chrome o Edge. In alternativa, seleziona i file manualmente con 'Importa Massivamente'",
-  //     //   variant: "destructive",
-  //     // });
-  //     toast.error("Per selezionare cartelle usa Chrome o Edge. In alternativa, seleziona i file manualmente con 'Importa Massivamente'");
-  //   }
-  // };
 
   const generateCatalogFromFolder = async () => {
     // Debug dettagliato
@@ -389,7 +229,10 @@ export default function CatalogSection() {
       async function scanDirectory(dirHandle, path = '') {
         for await (const entry of dirHandle.values()) {
           if (entry.kind === 'file') {
-            audioFiles.push(entry.name);
+            // 🎤 FILTRO FILE AUDIO E KARAOKE COMPLETO
+            if (/\.(mp3|wav|flac|aac|mid|midi|kar|ogg|m4a|cdg|kfn|mp4|avi|krk)$/i.test(entry.name)) {
+              audioFiles.push(entry.name);
+            }
           } else if (entry.kind === 'directory') {
             await scanDirectory(entry, path + entry.name + '/');
           }
@@ -521,30 +364,6 @@ export default function CatalogSection() {
           <h2 className="text-3xl font-bold mb-2 text-white">Catalogo Canzoni</h2>
           <p className="text-gray-400">Gestisci il tuo repertorio musicale</p>
         </div>
-        {/* <div className="flex gap-3">
-          <Button 
-            onClick={() => setShowGenerateDialog(true)}
-            className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
-          >
-            <Sparkles className="w-4 h-4 mr-2 text-cyan-200" />
-            Genera Catalogo Automaticamente
-          </Button>
-          <Button 
-            onClick={() => setShowImportDialog(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Importa Massivamente
-          </Button>
-          <Button 
-            onClick={() => setShowAddSongDialog(true)}
-            variant="ghost"
-            className="text-gray-300 hover:text-white hover:bg-gray-800/50"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Aggiungi Canzone
-          </Button>
-        </div> */}
       </div>
       
       <div className="grid md:grid-cols-3 gap-4">
@@ -654,106 +473,6 @@ export default function CatalogSection() {
         </DialogContent>
       </Dialog>
 
-      {/* Import Dialog */}
-      {/* <Dialog open={showImportDialog} onOpenChange={handleCloseImportDialog}>
-        <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-3xl overflow-y-auto max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Importa Canzoni Massivamente</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 mt-4">
-            <div className="bg-purple-900/30 border border-purple-700/50 rounded-lg p-4">
-              <h3 className="font-bold text-lg mb-3 text-purple-300">📋 Come creare il file Excel</h3>
-              <p className="text-sm text-gray-300 mb-4">
-                Crea un file Excel con l'elenco delle tue canzoni seguendo questa struttura:
-              </p>
-              
-              <div className="space-y-4">
-                <div className="bg-gray-800/50 border border-gray-600 rounded p-3">
-                  <div className="font-semibold text-purple-300 mb-2">Specifiche del File:</div>
-                  <ul className="text-sm text-gray-300 space-y-1">
-                    <li>• <strong>Una sola colonna</strong> con intestazione</li>
-                    <li>• <strong>Ogni riga</strong> = una canzone</li>
-                    <li>• <strong>Usa il nome completo</strong> del file musicale</li>
-                    <li>• <strong>Nessuna riga vuota</strong> tra le canzoni</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="font-semibold text-purple-300 mb-2">Esempio:</div>
-                  <div className="bg-gray-800/50 p-3 rounded border border-gray-700 font-mono text-sm overflow-x-auto">
-                    <div className="text-purple-400">Titolo Canzone</div>
-                    <div className="text-gray-300">Volare.midi</div>
-                    <div className="text-gray-300">Hotel California - Eagles.mp3</div>
-                    <div className="text-gray-300">Azzurro_Celentano_1968.mp3</div>
-                    <div className="text-gray-300">Bohemian Rhapsody (Queen) - Karaoke.midi</div>
-                    <div className="text-gray-300">Con te partirò.mp3</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-900/30 border border-blue-700/50 rounded">
-                <p className="text-sm text-blue-300">
-                  💡 <strong>Suggerimento:</strong> Usa Excel, Google Sheets o qualsiasi editor di testo per creare il file. 
-                  Salva il file con estensione .xlsx
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div 
-                className="border-2 border-dashed border-purple-700/50 rounded-lg p-8 text-center hover:border-purple-600/70 transition-colors cursor-pointer"
-                onClick={handleFileSelect}
-              >
-                <FileSpreadsheet className="w-12 h-12 text-purple-400 mx-auto mb-3" />
-                {selectedFile ? (
-                  <div>
-                    <p className="text-green-400 mb-2">✅ File selezionato:</p>
-                    <p className="text-white font-medium">{selectedFile.name}</p>
-                    <p className="text-sm text-gray-400 mt-1">
-                      {(selectedFile.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-gray-300 mb-2">Clicca per selezionare il file Excel</p>
-                    <p className="text-sm text-gray-500">oppure trascina il file qui</p>
-                  </div>
-                )}
-              </div>
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="ghost"
-                onClick={handleCloseImportDialog}
-                disabled={importing}
-                className="text-gray-300 hover:text-white hover:bg-gray-800/50"
-              >
-                Annulla
-              </Button>
-              <Button 
-                onClick={handleImportExcel}
-                disabled={!selectedFile || importing}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              >
-                {importing ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : null}
-                {importing ? "Importando..." : "Importa Canzoni"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog> */}
-
       <Dialog open={showImportDialog} onOpenChange={handleCloseImportDialog}>
         <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-3xl overflow-y-auto max-h-[90vh]">
           <DialogHeader>
@@ -776,7 +495,7 @@ export default function CatalogSection() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="bg-purple-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
-                  <span><strong>Seleziona il file:</strong> Clicca nell'area qui sotto per caricare il tuo file Excel (.xlsx, .xls) o CSV</span>
+                  <span><strong>Seleziona il file:</strong> Clicca nell'area qui sotto per caricare il tuo file Excel (.xlsx, .xls)</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="bg-purple-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
@@ -819,7 +538,7 @@ export default function CatalogSection() {
                 ) : (
                   <div>
                     <p className="text-gray-300 mb-2">Clicca per selezionare il file Excel</p>
-                    <p className="text-sm text-gray-500">Supporta .xlsx, .xls, .csv</p>
+                    <p className="text-sm text-gray-500">Supporta .xlsx, .xls</p>
                   </div>
                 )}
               </div>
@@ -827,7 +546,7 @@ export default function CatalogSection() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".xlsx,.xls"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -857,84 +576,6 @@ export default function CatalogSection() {
         </DialogContent>
       </Dialog>
 
-      {/* Generate from Folder Dialog */}
-      {/* <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
-        <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-cyan-400" />
-              Genera Catalogo Automaticamente
-            </DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Seleziona una cartella per scansionare automaticamente tutti i file audio e generare un file Excel
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6 mt-4">
-            <div className="bg-cyan-900/30 border border-cyan-700/50 rounded-lg p-4">
-              <h3 className="font-bold text-lg mb-3 text-cyan-300">📁 Come funziona</h3>
-              <p className="text-sm text-gray-300 mb-4">
-                Seleziona una cartella del tuo computer e il sistema scansionerà automaticamente 
-                tutti i file audio (incluse le sottocartelle) per creare un file Excel.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400">•</span>
-                  <span>Scansiona <strong>ricorsivamente</strong> tutte le sottocartelle</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400">•</span>
-                  <span>Trova file: MP3, WAV, FLAC, AAC, MIDI, OGG, M4A</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400">•</span>
-                  <span>Genera un file Excel pronto per l'importazione massiva</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400">•</span>
-                  <span><strong>Funziona solo su Chrome/Edge</strong> (per ora)</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-3">
-              <button 
-                onClick={generateCatalogFromFolder}
-                disabled={generating}
-                //className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 py-6 text-lg rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-white font-medium"
-                 className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 py-3 text-base rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-white font-medium"
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Scansionando cartella...
-                  </>
-                ) : (
-                  <>
-                    <FolderOpen className="w-5 h-5" />
-                    Seleziona Cartella e Genera Excel
-                  </>
-                )}
-              </button>
-
-              <div className="text-center text-sm text-gray-400 font-medium">
-                💡 Dopo aver generato l'Excel, potrai importarlo usando "Importa Massivamente"
-              </div>
-            </div>
-
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="ghost"
-                onClick={() => setShowGenerateDialog(false)}
-                disabled={generating}
-                className="text-gray-300 hover:text-white hover:bg-gray-800/50"
-              >
-                Chiudi
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog> */}
       <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
         <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-2xl">
           <DialogHeader>
@@ -975,7 +616,7 @@ export default function CatalogSection() {
         
         <div className="mt-4 pt-3 border-t border-cyan-700/30">
           <p className="text-xs text-gray-400 mb-2">
-            <strong>Formati supportati:</strong> MP3, WAV, FLAC, AAC, MIDI, OGG, M4A
+            <strong>Formati supportati:</strong> MP3, WAV, FLAC, AAC, OGG, M4A, MIDI, KAR, CDG, KFN, MP4, AVI, KRK
           </p>
           <p className="text-xs text-gray-400">
             <strong>Browser supportati:</strong> Chrome e Edge
@@ -1094,21 +735,6 @@ export default function CatalogSection() {
                         </div>
                       </div>
                     </div>
-                    {/* <div className="col-span-1 md:col-span-2 self-center">
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="ghost" className="text-purple-400 hover:bg-purple-900/30">
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleDeleteSong(song.id)}
-                          className="text-red-400 hover:bg-red-900/30"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div> */}
                   </div>
                 ))}
               </div>
@@ -1128,7 +754,7 @@ export default function CatalogSection() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6 pt-6 border-t border-purple-800/30">
                   <Button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     variant="ghost"
                     className="text-gray-300 hover:text-white hover:bg-gray-800/50 disabled:opacity-30"
@@ -1136,12 +762,9 @@ export default function CatalogSection() {
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Precedente
                   </Button>
-                  <div className="text-sm text-gray-400">
-                    Visualizzando {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalSongs)} di {totalSongs}
-                  </div>
 
                   <Button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     variant="ghost"
                     className="text-gray-300 hover:text-white hover:bg-gray-800/50 disabled:opacity-30"

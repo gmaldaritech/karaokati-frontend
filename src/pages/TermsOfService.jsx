@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Mic2, FileText, Shield, Scale } from "lucide-react";
+import { ArrowLeft, Mic2, FileText, Shield, Scale, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function TermsOfService() {
@@ -24,28 +24,32 @@ export default function TermsOfService() {
     </section>
   );
 
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* Header */}
-      <header className="bg-gray-900/80 backdrop-blur-md border-b border-purple-800/30 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-              <Link to={createPageUrl("Home")} className="flex items-center gap-3 group">
-                <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" />
-                <div className="flex items-center">
-                <img 
-                  src="/logo2.png"
-                  alt="Karaokati" 
-                  className="h-8 w-auto"
-                />
-                </div>
-              </Link>
+      <header className="fixed top-0 w-full bg-gray-900/80 backdrop-blur-md border-b border-purple-800/30 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link to={createPageUrl("home")} onClick={handleLogoClick} className="flex items-center gap-3 group">
+            {/* <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" /> */}
+            <div className="flex items-center">
+            <img 
+              src="/logo.png"
+              alt="Karaokati" 
+              className="h-8 w-auto"
+            />
             </div>
+          </Link>
+        </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-12">
         {/* Document Header */}
         <div className="text-center mb-12 pb-8 border-b border-purple-800/30">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-900/50 border border-purple-700/50 rounded-full mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-900/50 border border-purple-700/50 rounded-full mt-10 mb-6">
             <FileText className="w-4 h-4 text-purple-400" />
             <span className="text-sm font-medium text-purple-300">Linee Guida</span>
           </div>
@@ -55,12 +59,12 @@ export default function TermsOfService() {
           </h1>
           
           <p className="text-lg text-purple-300 mb-6">
-            Piattaforma gratuita per la gestione di serate karaoke
+            Piattaforma per la gestione di serate karaoke
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
             <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-              Ultimo aggiornamento: 10 Dicembre 2024
+              Ultimo aggiornamento: 09 Gennaio 2026
             </span>
           </div>
         </div>
@@ -70,9 +74,9 @@ export default function TermsOfService() {
           <div className="flex items-start gap-4">
             <FileText className="w-6 h-6 text-purple-400 flex-shrink-0 mt-1" />
             <p className="text-gray-300 leading-relaxed">
-              Karaokati è un progetto personale gratuito creato per aiutare DJ e appassionati di karaoke 
+              Karaokati è un progetto creato per aiutare DJ e appassionati di karaoke 
               a gestire le proprie serate in modo digitale. Utilizzando questa piattaforma, accetti di 
-              seguire queste semplici linee guida per garantire un'esperienza positiva per tutti.
+              seguire queste condizioni per garantire un'esperienza positiva per tutti.
             </p>
           </div>
         </div>
@@ -80,7 +84,7 @@ export default function TermsOfService() {
         {/* Articles */}
         <div className="space-y-8">
           <Section number="1" title="Cos'è Karaokati">
-            <p>Karaokati è una piattaforma web gratuita che ti permette di:</p>
+            <p>Karaokati è una piattaforma web che ti permette di:</p>
             <ul className="list-disc list-inside space-y-2 mt-4 ml-4">
               <li>Gestire digitalmente le tue serate karaoke</li>
               <li>Organizzare il tuo catalogo musicale</li>
@@ -88,10 +92,28 @@ export default function TermsOfService() {
               <li>Generare QR code personalizzati per i tuoi clienti</li>
               <li>Utilizzare un chatbot per facilitare le prenotazioni</li>
             </ul>
-            <p className="mt-4 text-purple-300">
-              La piattaforma è completamente gratuita e rimarrà tale. Chi lo desidera può sostenere 
-              volontariamente il progetto, ma il servizio rimane identico per tutti.
-            </p>
+            
+            {/* UPDATED - Modello di servizio */}
+            <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mt-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-blue-300 mb-2">Modello di Servizio</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    Attualmente Karaokati è completamente gratuito durante la fase di crescita iniziale. 
+                    In futuro, quando il progetto crescerà e i costi aumenteranno, potremmo introdurre 
+                    un modello freemium con:
+                  </p>
+                  <ul className="list-disc list-inside mt-2 ml-4 text-gray-300 text-sm space-y-1">
+                    <li>Piano Gratuito con funzionalità base</li>
+                    <li>Piano Pro a pagamento con funzionalità avanzate</li>
+                  </ul>
+                  <p className="text-blue-200 text-sm mt-2">
+                    Ti avviseremo con almeno 60 giorni di anticipo prima di qualsiasi cambio di pricing.
+                  </p>
+                </div>
+              </div>
+            </div>
           </Section>
 
           <Section number="2" title="Chi Può Usare Karaokati">
@@ -123,7 +145,7 @@ export default function TermsOfService() {
                 <li>Usare Karaokati per organizzare serate karaoke</li>
                 <li>Caricare il catalogo delle tue canzoni</li>
                 <li>Gestire prenotazioni dei tuoi clienti</li>
-                <li>Usare tutte le funzionalità disponibili</li>
+                <li>Usare tutte le funzionalità disponibili nel tuo piano</li>
               </ul>
             </div>
             <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-4">
@@ -154,8 +176,7 @@ export default function TermsOfService() {
             <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4 mt-4">
               <p className="text-yellow-300">
                 <strong>Importante:</strong> Karaokati è solo uno strumento tecnologico. Non siamo responsabili 
-                per come lo usi o per eventuali problemi legali che potrebbero derivare dal tuo utilizzo. 
-                Se qualcuno ti fa causa per qualcosa che hai fatto con Karaokati, è una cosa tra te e loro.
+                per come lo usi o per eventuali problemi legali che potrebbero derivare dal tuo utilizzo.
               </p>
             </div>
           </Section>
@@ -183,7 +204,6 @@ export default function TermsOfService() {
                 <p className="text-green-300 mb-2">✅ NON raccogliamo o condividiamo:</p>
                 <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4">
                   <li>Dati sensibili personali</li>
-                  <li>Informazioni di pagamento (il servizio è gratuito)</li>
                   <li>Dati di navigazione per marketing</li>
                   <li>Le tue informazioni con terze parti</li>
                 </ul>
@@ -201,7 +221,7 @@ export default function TermsOfService() {
                 <p className="font-semibold text-white mb-2">I Tuoi Diritti</p>
                 <p className="text-gray-300 text-sm">
                   Puoi sempre vedere, modificare o eliminare i tuoi dati dalla dashboard. 
-                  Se vuoi cancellare completamente l'account, scrivici e lo faremo subito.
+                  Se vuoi cancellare completamente l'account, potrai farlo in autonomia dalla tua area riservata oppure scrivendoci.
                 </p>
               </div>
             </div>
@@ -220,87 +240,147 @@ export default function TermsOfService() {
             </ul>
           </Section>
 
-          <Section number="8" title="Limitazioni e Disclaimer">
-            <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4 mb-4">
-              <p className="text-yellow-300 leading-relaxed">
-                ⚠️ <strong>Karaokati è fornito "così com'è"</strong> - è un progetto gratuito gestito da un gruppo di persone nel tempo libero.
+          {/* UPDATED - Pricing e Cambiamenti */}
+          <Section number="8" title="Pricing e Modifiche al Servizio">
+            <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mb-4">
+              <p className="text-blue-300 font-semibold mb-2">Modello Attuale</p>
+              <p className="text-gray-300">
+                Attualmente Karaokati è completamente gratuito per tutti gli utenti durante la fase di crescita.
               </p>
             </div>
-            
-            <p>Questo significa che:</p>
-            <ul className="list-disc list-inside space-y-2 mt-2 ml-4">
-              <li>Non posso garantire che funzioni sempre al 100%</li>
-              <li>Potrebbero esserci bug o interruzioni del servizio</li>
-              <li>Potrei fare manutenzione senza preavviso</li>
-              <li>Faccio del mio meglio, ma non ho obblighi legali</li>
-            </ul>
 
-            <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mt-4">
-              <p className="text-red-300 font-semibold mb-2">Non sono responsabile per:</p>
-              <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4">
-                <li>Perdita di dati (fai sempre backup!)</li>
-                <li>Problemi durante le tue serate</li>
-                <li>Danni derivanti dall'uso della piattaforma</li>
-                <li>Problemi legali legati al tuo uso del servizio</li>
+            <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-4 mb-4">
+              <p className="text-purple-300 font-semibold mb-2">Modello Futuro</p>
+              <p className="text-gray-300 mb-3">
+                Quando il progetto crescerà e i costi di infrastruttura aumenteranno significativamente, 
+                potremmo introdurre un modello freemium:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                <li><strong>Piano Gratuito:</strong> Funzionalità base sufficienti per uso occasionale</li>
+                <li><strong>Piano Pro:</strong> Funzionalità avanzate e illimitate (a pagamento)</li>
+              </ul>
+            </div>
+
+            <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-4">
+              <p className="text-green-300 font-semibold mb-2">I Tuoi Diritti</p>
+              <ul className="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                <li>Ti avviseremo con <strong>almeno 60 giorni di anticipo</strong> prima di qualsiasi cambio di pricing</li>
+                <li>Riceverai una email dettagliata con tutte le informazioni sui nuovi piani</li>
+                <li>Avrai tempo per decidere quale piano scegliere</li>
+                <li>Se non sei d'accordo, potrai cancellare l'account ed esportare i tuoi dati</li>
               </ul>
             </div>
 
             <p className="mt-4 text-purple-300">
-              💡 <strong>Consiglio pratico:</strong> Tieni sempre un backup del tuo catalogo e un piano B per le tue serate!
+              💡 <strong>Trasparenza:</strong> Vogliamo essere onesti fin dall'inizio. Se il progetto avrà successo, 
+              dovremo renderlo sostenibile economicamente. Non promettiamo "gratis per sempre" per poi cambiare le carte in tavola.
             </p>
           </Section>
 
-          <Section number="9" title="Cancellazione Account">
+          <Section number="9" title="Limitazioni e Disclaimer">
+            <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4 mb-4">
+              <p className="text-yellow-300 leading-relaxed">
+                ⚠️ <strong>Karaokati è fornito "così com'è"</strong>
+              </p>
+            </div>
+            
+            <p>Karaokati è un servizio in continua evoluzione. Ci impegniamo a mantenerlo stabile e funzionale, ma come ogni piattaforma digitale:</p>
+            
+            <div className="bg-gray-800/50 rounded-lg p-4 mt-4 mb-4">
+              <p className="font-semibold text-white mb-2">Cosa può succedere:</p>
+              <ul className="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                <li>Potrebbero verificarsi interruzioni temporanee del servizio</li>
+                <li>Occasionalmente potrebbero presentarsi bug o malfunzionamenti</li>
+                <li>Le funzionalità possono essere migliorate, modificate o aggiornate nel tempo</li>
+                <li>In rari casi, i server potrebbero essere momentaneamente non disponibili</li>
+              </ul>
+            </div>
+
+            <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mb-4">
+              <p className="text-red-300 font-semibold mb-2">Limiti di responsabilità - Karaokati non è responsabile per:</p>
+              <ul className="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                <li>Perdita o danneggiamento dei tuoi dati (ti consigliamo di fare backup periodici)</li>
+                <li>Interruzioni del servizio durante le tue serate</li>
+                <li>Eventuali danni diretti o indiretti derivanti dall'uso della piattaforma</li>
+                <li>Problemi tecnici dei dispositivi dei tuoi clienti (connessione, chatbot, ecc.)</li>
+                <li>Questioni legali relative al tuo utilizzo del servizio (licenze musicali, diritti d'autore, ecc.)</li>
+              </ul>
+            </div>
+
+            <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mb-4">
+              <p className="text-blue-300 font-semibold mb-2">💡 Raccomandazioni pratiche:</p>
+              <ul className="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                <li>Conserva sempre una copia di backup del tuo catalogo (puoi esportarlo dalla dashboard)</li>
+                <li>Prepara un piano B per le tue serate (es. lista cartacea di emergenza)</li>
+                <li>Testa il sistema prima di ogni serata importante</li>
+                <li>Verifica che i tuoi clienti abbiano connessione internet stabile</li>
+              </ul>
+            </div>
+
+            <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-4">
+              <p className="text-purple-300 font-semibold mb-2">Il nostro impegno:</p>
+              <p className="text-gray-300 mb-2">
+                Anche se non possiamo garantire il 100% di uptime, ci impegniamo a:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4">
+                <li>Mantenere il servizio il più stabile possibile</li>
+                <li>Risolvere bug e problemi tempestivamente</li>
+                <li>Comunicare in anticipo eventuali manutenzioni programmate</li>
+                <li>Fornire supporto tecnico in caso di difficoltà</li>
+              </ul>
+            </div>
+          </Section>
+
+          <Section number="10" title="Cancellazione Account">
             <p>Puoi cancellare il tuo account in qualsiasi momento:</p>
             <ul className="list-disc list-inside space-y-2 mt-2 ml-4">
               <li>Dalle impostazioni della dashboard, oppure</li>
-              <li>Scrivendomi direttamente</li>
+              <li>Scrivendoci direttamente</li>
             </ul>
             <p className="mt-3">Quando cancelli l'account:</p>
             <ul className="list-disc list-inside space-y-1 mt-2 ml-4">
               <li>I tuoi dati vengono eliminati entro 30 giorni</li>
               <li>Non potrai più recuperare il catalogo o le prenotazioni</li>
               <li>Il tuo QR code smetterà di funzionare</li>
+              <li>Eventuali abbonamenti attivi verranno cancellati (se applicabile in futuro)</li>
             </ul>
             <p className="mt-4 text-purple-300">
-              Posso anche sospendere o chiudere account che violano queste condizioni, 
-              ma cercherò sempre di avvisarti prima se possibile.
+              Ci riserviamo di sospendere o chiudere account che violano queste condizioni.
             </p>
           </Section>
 
-          <Section number="10" title="Modifiche a Queste Condizioni">
-            <p>Potrei aggiornare queste condizioni nel tempo. Quando lo faccio:</p>
+          <Section number="11" title="Modifiche a Queste Condizioni">
+            <p>Potremmo aggiornare queste condizioni nel tempo. Quando lo facciamo:</p>
             <ul className="list-disc list-inside space-y-2 mt-2 ml-4">
-              <li>Ti avviso via email</li>
+              <li>Ti avviseremo via email</li>
               <li>Le modifiche entrano in vigore dopo 30 giorni</li>
               <li>Se continui a usare Karaokati, accetti le nuove condizioni</li>
               <li>Se non sei d'accordo, puoi cancellare l'account</li>
             </ul>
           </Section>
 
-          <Section number="11" title="Chiusura del Servizio">
+          <Section number="12" title="Chiusura del Servizio">
             <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-4">
               <p className="text-purple-300 leading-relaxed">
-                Karaokati è un progetto gratuito che dipende dall'interesse della community. 
-                Se un giorno dovessi chiuderlo, ti avviserò con almeno 90 giorni di anticipo, 
+                Se un giorno dovessimo chiudere il servizio, ti avviseremo con almeno 90 giorni di anticipo, 
                 dandoti il tempo di esportare tutti i tuoi dati.
               </p>
             </div>
           </Section>
-          <Section number="12" title="Contatti e Supporto">
-            <p>Per domande, problemi o suggerimenti, puoi contattarmi:</p>
+
+          <Section number="13" title="Contatti e Supporto">
+            <p>Per domande, problemi o suggerimenti, puoi contattarci:</p>
             <div className="bg-gray-800/50 rounded-lg p-4 mt-4">
               <p className="text-purple-400 mb-2">📧 Email di supporto:</p>
-              <p className="text-white">admin@karaokati.com</p>
+              <p className="text-white">support@karaokati.com</p>
             </div>
             <p className="mt-4 text-gray-400 text-sm">
-              Rispondo quando posso, di solito entro 48-72 ore. Ricorda che questo è un progetto 
-              personale, quindi la risposta potrebbe non essere immediata.
+              Rispondiamo di solito entro 48-72 ore lavorative.
             </p>
           </Section>
         </div>
 
-        {/* Info Box Finale */}
+        {/* Info Box Finale - UPDATED */}
         <div className="mt-12 pt-8 border-t border-purple-800/30">
           <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-700/50 rounded-xl p-6">
             <div className="flex items-start gap-4">
@@ -308,32 +388,24 @@ export default function TermsOfService() {
               <div>
                 <h3 className="text-lg font-bold text-white mb-2">Spirito del Progetto</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  Karaokati nasce dalla passione per il karaoke e dalla voglia di aiutare chi organizza serate. 
-                  È un progetto gratuito, senza pubblicità e senza secondi fini. L'unico obiettivo è creare 
-                  uno strumento utile per la community. Se ti piace e vuoi sostenerlo, fantastico. 
-                  Se preferisci solo usarlo, va benissimo lo stesso. Buone serate! 🎤
+                  Karaokati nasce dalla passione per il karaoke e dalla voglia di creare uno strumento utile. 
+                  È attualmente gratuito per far crescere la community, ma se avrà successo dovremo renderlo 
+                  sostenibile. Preferiamo essere onesti fin dall'inizio piuttosto che promettere "gratis per sempre" 
+                  e poi deludere. Se ti piace e vuoi sostenerlo con una donazione, fantastico. Altrimenti, 
+                  goditi il servizio finché è gratuito. Buone serate! 🎤
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Back Button */}
-        <div className="mt-12 text-center">
-          <Link to={createPageUrl("Home")}>
-            <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Torna alla Home
-            </Button>
-          </Link>
-        </div>
       </main>
 
       {/* Footer */}
       <footer className="bg-gray-950 text-white py-8 px-6 border-t border-purple-800/30 mt-12">
         <div className="max-w-5xl mx-auto text-center text-gray-400 text-sm">
-          <p>© 2025 Karaokati. Tutti i diritti riservati.</p>
-          <p className="mt-2">Ultimo aggiornamento: 10 Dicembre 2024</p>
+          <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
+          <p className="mt-2">Ultimo aggiornamento: 09 Gennaio 2026</p>
         </div>
       </footer>
     </div>

@@ -29,7 +29,7 @@ export default function ForgotPassword() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        <Link to={createPageUrl("Access")} className="inline-flex items-center gap-3 mb-8 group">
+        <Link to={createPageUrl("login")} className="inline-flex items-center gap-3 mb-8 group">
           <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" />
           <span className="text-purple-300 font-medium">Torna al login</span>
         </Link>
@@ -70,7 +70,7 @@ export default function ForgotPassword() {
                     Se non ricevi l'email, controlla la cartella spam.
                   </p>
                 </div>
-                <Link to={createPageUrl("Access")}>
+                <Link to={createPageUrl("login")}>
                   <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6">
                     Torna al Login
                   </Button>
@@ -103,7 +103,7 @@ export default function ForgotPassword() {
 
                 <div className="text-center pt-2">
                   <span className="text-gray-400">Ricordi la password? </span>
-                  <Link to={createPageUrl("Access")} className="text-purple-400 font-medium hover:underline">
+                  <Link to={createPageUrl("login")} className="text-purple-400 font-medium hover:underline">
                     Accedi
                   </Link>
                 </div>
@@ -116,9 +116,9 @@ export default function ForgotPassword() {
       {/* Footer */}
       <footer className="absolute bottom-0 left-0 right-0 bg-gray-950/80 backdrop-blur-sm text-white py-6 px-6 border-t border-purple-800/30">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-          <p>© 2024 Karaokati. Tutti i diritti riservati.</p>
+          <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
           <div className="flex gap-6">
-            <Link to={createPageUrl("TermsOfService")} className="hover:text-white transition">Termini di servizio</Link>
+            <Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link>
             <a href="#" className="hover:text-white transition">Privacy Policy</a>
           </div>
         </div>

@@ -1,5 +1,4 @@
-// src/components/QRCodePrintTemplate.jsx
-export const generateQRPrintHTML = (user, base64data) => {
+export const generateQRPrintHTML = (user, base64data, paypalQrCode = null) => {
   return `
 	          <!DOCTYPE html>
 <html>
@@ -34,14 +33,14 @@ export const generateQRPrintHTML = (user, base64data) => {
     .header {
       margin-bottom: 20px;
       padding-bottom: 15px;
-      border-bottom: 2px solid #9333ea;
+      /* border-bottom: 2px solid #9333ea; ← RIMUOVI QUESTA RIGA */
     }
 
-    .logo {
-      font-size: 28px;
-      font-weight: bold;
-      color: #9333ea;
-      margin-bottom: 8px;
+    .logo-image {
+      height: 40px;
+      width: auto;
+      margin: 0 auto 8px auto;
+      display: block;
     }
 
     .dj-name {
@@ -70,7 +69,7 @@ export const generateQRPrintHTML = (user, base64data) => {
       padding: 12px;
       border-radius: 8px;
       display: inline-block;
-      border: 2px solid #9333ea;
+      /* border: 2px solid #9333ea; */
     }
 
     .qr-image {
@@ -234,20 +233,50 @@ export const generateQRPrintHTML = (user, base64data) => {
     }
 
     @media print {
-      body { font-size: 10pt; }
-      .qr-image { width: 140px; height: 140px; }
-      .step { font-size: 9px; }
-      .donation-text { font-size: 8px; }
-      .donation-qr-placeholder { width: 50px; height: 50px; font-size: 7px; }
+      @page {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      body { 
+        font-size: 10pt;
+        margin: 1.6cm !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      
+      .logo-image { 
+        height: 35px;
+        width: auto;
+      }
+      
+      .qr-image { 
+        width: 140px; 
+        height: 140px; 
+      }
+      
+      .step { 
+        font-size: 9px; 
+      }
+      
+      .donation-text { 
+        font-size: 8px; 
+      }
+      
+      .donation-qr-placeholder { 
+        width: 50px; 
+        height: 50px; 
+        font-size: 7px; 
+      }
     }
   </style>
 </head>
-<body onload="window.print();">
+<body">
   <div class="print-container">
     
     <!-- Header -->
     <div class="header">
-      <div class="logo">🎤 KARAOKATI</div>
+      <img src="/logo_print.png" alt="Karaokati Logo" class="logo-image" />
       <h1 class="dj-name">${user?.stage_name}</h1>
     </div>
 
@@ -265,7 +294,7 @@ export const generateQRPrintHTML = (user, base64data) => {
       </div>
       <div class="qr-info">
         <div style="font-size: 10px; color: #6b7280; margin-top: 3px;">
-          Scansiona per accedere all'assistente digitale
+          🚀🎤🎵 Scansiona per accedere all'assistente digitale 🎵🎤🚀
         </div>
       </div>
     </div>
@@ -292,7 +321,7 @@ export const generateQRPrintHTML = (user, base64data) => {
           Sfoglia il catalogo e prenotati! Il DJ riceverà subito la tua richiesta
         </div>
         
-        <div class="step" style="background: rgba(147, 51, 234, 0.1);>
+        <div class="step" style="background: rgba(147, 51, 234, 0.1);">
           <span class="step-number">💡</span>
           Nota bene: In ogni momento potrai visualizzare lo stato delle tue prenotazioni o eliminarle
         </div>
@@ -320,10 +349,13 @@ export const generateQRPrintHTML = (user, base64data) => {
           </div>
           
           <div class="donation-qr">
-            <div class="donation-qr-placeholder">
-              QR CODE
-              DONAZIONE
-            </div>
+            ${paypalQrCode 
+              ? `<img src="${paypalQrCode}" alt="QR Code Donazione" style="width: 60px; height: 60px; border-radius: 6px;" />`
+              : `<div class="donation-qr-placeholder">
+                  QR CODE
+                  DONAZIONE
+                </div>`
+            }
             <div class="donation-qr-label">Scansiona<br/>per donare</div>
           </div>
         </div>
@@ -336,7 +368,7 @@ export const generateQRPrintHTML = (user, base64data) => {
       <p>
         <span style="font-weight: bold;">Sistema di prenotazione digitale powered by</span> 
         <span class="footer-brand">Karaokati</span> - 
-        <span style="font-style: italic;">Karaoke del futuro</span> © 2024
+        <span style="font-style: italic;">Karaoke del futuro</span> © 2026
       </p>
     </div>
 

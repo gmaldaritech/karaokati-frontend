@@ -29,7 +29,7 @@ export default function ResetPassword() {
     // Verifica se token esiste
     if (!token) {
       toast.error("Link di reset non valido");
-      navigate(createPageUrl("Access"));
+      navigate(createPageUrl("login"));
     }
   }, [token, navigate]);
 
@@ -81,7 +81,7 @@ export default function ResetPassword() {
         <Card className="border-purple-800/30 bg-gray-900/50 backdrop-blur-sm shadow-2xl max-w-md w-full">
           <CardContent className="text-center py-8">
             <p className="text-red-300 mb-4">Link di reset non valido</p>
-            <Link to={createPageUrl("Access")}>
+            <Link to={createPageUrl("login")}>
               <Button>Torna al Login</Button>
             </Link>
           </CardContent>
@@ -133,7 +133,7 @@ export default function ResetPassword() {
                   </p>
                 </div>
                 <div className="pt-4">
-                  <Link to={createPageUrl("Access")}>
+                  <Link to={createPageUrl("login")}>
                     <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6">
                       Vai al Login
                     </Button>
@@ -219,9 +219,9 @@ export default function ResetPassword() {
       {/* Footer */}
       <footer className="absolute bottom-0 left-0 right-0 bg-gray-950/80 backdrop-blur-sm text-white py-6 px-6 border-t border-purple-800/30">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-          <p>© 2024 Karaokati. Tutti i diritti riservati.</p>
+          <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
           <div className="flex gap-6">
-            <Link to={createPageUrl("TermsOfService")} className="hover:text-white transition">Termini di servizio</Link>
+            <Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link>
             <a href="#" className="hover:text-white transition">Privacy Policy</a>
           </div>
         </div>

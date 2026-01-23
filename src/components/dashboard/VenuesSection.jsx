@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ConfirmDialog from "../ConfirmDialog";
-//import { toast } from "@/components/ui/use-toast";
 import { toast } from "sonner";
 import { apiClient } from "@/api/apiClient";
 
@@ -59,26 +58,52 @@ export default function VenuesSection() {
       setVenues(venuesData);
     } catch (error) {
       console.error('Error loading venues:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile caricare i locali",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile caricare i locali");
     } finally {
       setLoading(false);
     }
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!formData.name.trim()) {
+  //     toast.error("Il nome del locale è obbligatorio");
+  //     return;
+  //   }
+
+  //   try {
+  //     setSubmitting(true);
+  //     const newVenue = await apiClient.createVenue({
+  //       name: formData.name,
+  //       address: formData.address || null,
+  //       capacity: formData.capacity ? parseInt(formData.capacity) : 50,
+  //       notes: formData.notes || null
+  //     });
+      
+  //     setVenues([...venues, newVenue]);
+  //     setFormData({ name: '', address: '', capacity: '', notes: '' });
+  //     setShowAddForm(false);
+
+  //     toast.success("Locale aggiunto con successo");
+  //   } catch (error) {
+  //     console.error('Error creating venue:', error);
+  //     toast.error("Impossibile aggiungere il locale");
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validazioni manuali complete come nel Register.jsx
     if (!formData.name.trim()) {
-      // toast({
-      //   title: "Errore",
-      //   description: "Il nome del locale è obbligatorio",
-      //   variant: "destructive",
-      // });
       toast.error("Il nome del locale è obbligatorio");
+      return;
+    }
+
+    if (!formData.address.trim()) {
+      toast.error("L'indirizzo del locale è obbligatorio");
       return;
     }
 
@@ -95,18 +120,9 @@ export default function VenuesSection() {
       setFormData({ name: '', address: '', capacity: '', notes: '' });
       setShowAddForm(false);
       
-      // toast({
-      //   title: "Successo",
-      //   description: "Locale aggiunto con successo",
-      // });
       toast.success("Locale aggiunto con successo");
     } catch (error) {
       console.error('Error creating venue:', error);
-      // toast({
-      //   title: "Errore", 
-      //   description: error.message || "Impossibile aggiungere il locale",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile aggiungere il locale");
     } finally {
       setSubmitting(false);
@@ -123,17 +139,8 @@ export default function VenuesSection() {
         active: v.id === venueId ? result.active : false
       })));
 
-      // toast({
-      //   title: "Successo",
-      //   description: result.message,
-      // });
     } catch (error) {
       console.error('Error toggling venue:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile modificare lo stato del locale",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile modificare lo stato del locale");
     }
   };
@@ -151,18 +158,9 @@ export default function VenuesSection() {
       await apiClient.deleteVenue(venueToDelete.id);
       setVenues(venues.filter(v => v.id !== venueToDelete.id));
       
-      // toast({
-      //   title: "Successo",
-      //   description: "Locale eliminato con successo",
-      // });
       toast.success("Locale eliminato con successo");
     } catch (error) {
       console.error('Error deleting venue:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile eliminare il locale", 
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile eliminare il locale");
     } finally {
       setShowDeleteVenueDialog(false);
@@ -183,13 +181,14 @@ export default function VenuesSection() {
   };
 
   const handleUpdateVenue = async () => {
+
     if (!editFormData.name.trim()) {
-      // toast({
-      //   title: "Errore",
-      //   description: "Il nome del locale è obbligatorio",
-      //   variant: "destructive",
-      // });
       toast.error("Il nome del locale è obbligatorio");
+      return;
+    }
+
+    if (!editFormData.address.trim()) {
+      toast.error("L'indirizzo del locale è obbligatorio");
       return;
     }
 
@@ -206,18 +205,9 @@ export default function VenuesSection() {
       setShowEditDialog(false);
       setEditingVenue(null);
       
-      // toast({
-      //   title: "Successo",
-      //   description: "Locale aggiornato con successo",
-      // });
       toast.success("Locale aggiornato con successo");
     } catch (error) {
       console.error('Error updating venue:', error);
-      // toast({
-      //   title: "Errore", 
-      //   description: error.message || "Impossibile aggiornare il locale",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile aggiornare il locale");
     } finally {
       setSubmitting(false);
@@ -360,7 +350,6 @@ export default function VenuesSection() {
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="Es. Rock Café" 
                     className="bg-gray-900/50 border-purple-800/50 text-white placeholder:text-gray-500"
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -383,7 +372,6 @@ export default function VenuesSection() {
                   onChange={(e) => handleInputChange('address', e.target.value)}
                   placeholder="Via, Città" 
                   className="bg-gray-900/50 border-purple-800/50 text-white placeholder:text-gray-500"
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -451,7 +439,7 @@ export default function VenuesSection() {
                       {venue.active && (
                         <Badge className="bg-green-900/50 text-green-300 border-green-700/50">
                           <Power className="w-3 h-3 mr-1" />
-                          Serata Attiva
+                          Serata Avviata
                         </Badge>
                       )}
                     </div>
@@ -486,7 +474,7 @@ export default function VenuesSection() {
                   <div className="p-3 bg-gray-900/50 rounded-lg border border-purple-800/30">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-300">Attiva Serata</div>
+                        <div className="text-sm font-medium text-gray-300">Avvia Serata</div>
                         <div className="text-xs text-gray-500">Permetti prenotazioni</div>
                       </div>
                       <Switch

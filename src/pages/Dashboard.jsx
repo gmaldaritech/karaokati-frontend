@@ -23,7 +23,6 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (activeSection) {
       case "overview":
-        //return <OverviewSection />;
         return <OverviewSection onSectionChange={setActiveSection} />;
       case "venues":
         return <VenuesSection />;

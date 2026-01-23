@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Users, User, Mail, Phone, Lock, Save, Trash2, AlertTriangle, Loader2, QrCode, Copy } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
-//import { toast } from "@/components/ui/use-toast";
 import { toast } from "sonner";
 import { apiClient } from "@/api/apiClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +34,7 @@ export default function SettingsSection() {
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [showDeleteBookingsDialog, setShowDeleteBookingsDialog] = useState(false);
   const [showDeleteCatalogDialog, setShowDeleteCatalogDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // ← AGGIUNGI QUESTO STATE
 
   // Load user data on component mount
   useEffect(() => {
@@ -52,23 +52,44 @@ export default function SettingsSection() {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     
+    // Validazioni manuali complete
+    if (!settings.full_name.trim()) {
+      toast.error("Il nome completo è obbligatorio");
+      return;
+    }
+
+    if (!settings.stage_name.trim()) {
+      toast.error("Il nome d'arte DJ è obbligatorio");
+      return;
+    }
+
+    // Telefono opzionale - se fornito, deve avere almeno 10 caratteri
+    if (settings.phone && settings.phone.trim() && settings.phone.trim().length < 10) {
+      toast.error("Inserisci un numero di telefono valido");
+      return;
+    }
+
     try {
       setSubmitting(true);
-      await updateProfile(settings);
       
-      // toast({
-      //   title: "Successo",
-      //   description: "Profilo aggiornato con successo",
-      // });
-      toast.success("Profilo aggiornato con successo")
+      // Invia solo i campi modificabili (escludiamo email)
+      await updateProfile({
+        full_name: settings.full_name,
+        stage_name: settings.stage_name,
+        phone: settings.phone,
+        max_bookings_per_user: settings.max_bookings_per_user
+      });
+      
+      toast.success("Profilo aggiornato con successo");
     } catch (error) {
       console.error('Error updating profile:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile aggiornare il profilo",
-      //   variant: "destructive",
-      // });
-      toast.error("Impossibile aggiornare il profilo")
+      
+      // Gestisci errori specifici
+      if (error.message.includes("Network Error") || error.message.includes("fetch")) {
+        toast.error("Impossibile connettersi al server. Riprova.");
+      } else {
+        toast.error(error.message || "Impossibile aggiornare il profilo");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -77,23 +98,29 @@ export default function SettingsSection() {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     
-    if (passwordData.new_password !== passwordData.confirm_password) {
-      // toast({
-      //   title: "Errore",
-      //   description: "Le password non coincidono",
-      //   variant: "destructive",
-      // });
-      toast.error("Le password non coincidono");
+    // Validazioni manuali complete
+    if (!passwordData.current_password) {
+      toast.error("La password attuale è obbligatoria");
+      return;
+    }
+
+    if (!passwordData.new_password) {
+      toast.error("La nuova password è obbligatoria");
       return;
     }
 
     if (passwordData.new_password.length < 8) {
-      // toast({
-      //   title: "Errore", 
-      //   description: "La password deve essere di almeno 8 caratteri",
-      //   variant: "destructive",
-      // });
       toast.error("La password deve essere di almeno 8 caratteri");
+      return;
+    }
+
+    if (!passwordData.confirm_password) {
+      toast.error("Conferma la nuova password");
+      return;
+    }
+
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      toast.error("Le password non coincidono");
       return;
     }
 
@@ -109,22 +136,20 @@ export default function SettingsSection() {
         new_password: "",
         confirm_password: ""
       });
-
       setShowPasswordForm(false);
 
-      // toast({
-      //   title: "Successo",
-      //   description: "Password cambiata con successo",
-      // });
-      toast.error("Password cambiata con successo");
+      toast.success("Password modificata con successo");
     } catch (error) {
       console.error('Error changing password:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile cambiare la password",
-      //   variant: "destructive",
-      // });
-      toast.error("Impossibile cambiare la password");
+      
+      // Gestisci errori specifici
+      if (error.message.includes("Password attuale non corretta")) {
+        toast.error("La password attuale non è corretta");
+      } else if (error.message.includes("Network Error") || error.message.includes("fetch")) {
+        toast.error("Impossibile connettersi al server. Riprova.");
+      } else {
+        toast.error(error.message || "Impossibile modificare la password");
+      }
     } finally {
       setChangingPassword(false);
     }
@@ -133,31 +158,16 @@ export default function SettingsSection() {
   const copyQRCode = () => {
     if (user?.qr_code_id) {
       navigator.clipboard.writeText(user.qr_code_id);
-      // toast({
-      //   title: "Successo",
-      //   description: "ID QR Code copiato negli appunti",
-      // });
       toast.success("ID QR Code copiato negli appunti");
     }
   };
 
   const handleDeleteAllBookings = async () => {
     try {
-      // This would need venue info - for now just show a message
-      // toast({
-      //   title: "Funzione non disponibile",
-      //   description: "Usa la sezione Prenotazioni per eliminare prenotazioni per venue specifici",
-      //   variant: "destructive",
-      // });
       const result = await apiClient.deleteAllBookings();
       toast.success(`${result.deleted} prenotazioni eliminate da tutti i locali`);
     } catch (error) {
       console.error('Error deleting bookings:', error);
-      // toast({
-      //   title: "Errore", 
-      //   description: error.message || "Impossibile eliminare le prenotazioni",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile eliminare tutte le prenotazioni")
     }
   };
@@ -166,45 +176,29 @@ export default function SettingsSection() {
     try {
       await apiClient.clearCatalog();
       setShowDeleteCatalogDialog(false);
-      
-      // toast({
-      //   title: "Successo",
-      //   description: "Catalogo eliminato completamente",
-      // });
       toast.success("Catalogo eliminato completamente");
     } catch (error) {
       console.error('Error deleting catalog:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile eliminare il catalogo", 
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile eliminare il catalogo");
     }
   };
 
   const handleDeleteAccount = async () => {
-    try {
-      // For now, just logout - account deletion would need a specific API endpoint
-      
-      
-      // toast({
-      //   title: "Account eliminato",
-      //   description: "Il tuo account è stato eliminato",
-      // });
-      await apiClient.deleteAccount();
-      await logout();
-      toast.success("il tuo account è stato eliminato")
-    } catch (error) {
-      console.error('Error deleting account:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile eliminare l'account",
-      //   variant: "destructive",
-      // });
-      toast.error("Impossibile eliminare l'account");
-    }
-  };
+  try {
+    setIsDeleting(true); // ← ATTIVA LOADING
+    // La tua chiamata API esistente
+    await apiClient.deleteAccount();
+    
+    // Logout e redirect (verrà eseguito dopo la risposta)
+    await logout();
+    
+  } catch (error) {
+    console.error('Errore eliminazione:', error);
+    setIsDeleting(false); // ← DISATTIVA SE ERRORE
+    toast.error("Errore durante l'eliminazione dell'account");
+  }
+  // Non serve setIsDeleting(false) qui perché l'utente viene reindirizzato
+};
 
   return (
     <div className="space-y-6">
@@ -262,6 +256,7 @@ export default function SettingsSection() {
                   value={settings.full_name}
                   onChange={(e) => setSettings({ ...settings, full_name: e.target.value })}
                   className="bg-gray-900/50 border-purple-800/50 text-white"
+                  autoComplete="off"
                 />
               </div>
               <div className="space-y-2">
@@ -271,6 +266,7 @@ export default function SettingsSection() {
                   value={settings.stage_name}
                   onChange={(e) => setSettings({ ...settings, stage_name: e.target.value })}
                   className="bg-gray-900/50 border-purple-800/50 text-white"
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -286,6 +282,8 @@ export default function SettingsSection() {
                   value={settings.email}
                   onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                   className="bg-gray-900/50 border-purple-800/50 text-white"
+                  disabled={true}  // 🔒 Campo disabilitato
+                  readOnly
                 />
               </div>
               <div className="space-y-2">
@@ -298,6 +296,7 @@ export default function SettingsSection() {
                   value={settings.phone}
                   onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
                   className="bg-gray-900/50 border-purple-800/50 text-white"
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -333,21 +332,23 @@ export default function SettingsSection() {
               </Label>
               <div className="relative">
                 <select
-                  value={settings.max_bookings_per_user}
+                  value={String(settings.max_bookings_per_user)}
                   onChange={(e) => setSettings({ 
                     ...settings, 
                     max_bookings_per_user: parseInt(e.target.value) 
                   })}
                   className="w-full px-3 py-2 bg-gray-900/50 border border-purple-800/50 rounded-md text-white 
                             focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none
-                            appearance-none cursor-pointer
+                            appearance-none cursor-pointer 
+                            font-normal text-sm
                             hover:bg-gray-800/50 hover:border-purple-700/50
-                            transition-all duration-200"
+                            transition-all duration-200
+                            [&>option]:font-normal [&>option]:text-sm"
                 >
-                  <option value={3} className="bg-gray-900 text-white">3 prenotazioni</option>
-                  <option value={5} className="bg-gray-900 text-white">5 prenotazioni</option>
-                  <option value={10} className="bg-gray-900 text-white">10 prenotazioni</option>
-                  <option value={999} className="bg-gray-900 text-white">Nessun limite</option>
+                  <option value="3" className="bg-gray-900 text-white font-normal">3 prenotazioni</option>
+                  <option value="5" className="bg-gray-900 text-white font-normal">5 prenotazioni</option>
+                  <option value="10" className="bg-gray-900 text-white font-normal">10 prenotazioni</option>
+                  <option value="999" className="bg-gray-900 text-white font-normal">Nessun limite</option>
                 </select>
                 
                 {/* Icona freccia personalizzata */}
@@ -417,7 +418,6 @@ export default function SettingsSection() {
                     value={passwordData.current_password}
                     onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
                     className="bg-gray-900/50 border-purple-800/50 text-white"
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -428,7 +428,6 @@ export default function SettingsSection() {
                     value={passwordData.new_password}
                     onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
                     className="bg-gray-900/50 border-purple-800/50 text-white"
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -439,7 +438,6 @@ export default function SettingsSection() {
                     value={passwordData.confirm_password}
                     onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                     className="bg-gray-900/50 border-purple-800/50 text-white"
-                    required
                   />
                 </div>
                 <div className="flex gap-3">
@@ -473,16 +471,6 @@ export default function SettingsSection() {
                 </div>
               </form>
             )}
-            
-            <div className="pt-4 border-t border-purple-800/30">
-              <Button 
-                variant="ghost" 
-                className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
-                onClick={() => setShowDeleteAccountDialog(true)}
-              >
-                Elimina Account
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -492,7 +480,7 @@ export default function SettingsSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-400">
             <AlertTriangle className="w-5 h-5" />
-            Gestione Dati
+            Gestione Dati e Account
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -526,6 +514,21 @@ export default function SettingsSection() {
                 Cancella Catalogo
               </Button>
             </div>
+
+            <div className="pt-4 border-t border-red-800/30">
+              <h4 className="font-semibold text-white mb-2">Elimina Account</h4>
+              <p className="text-sm text-gray-400 mb-3">
+                Elimina definitivamente il tuo account DJ e tutti i dati associati. Questa azione è irreversibile.
+              </p>
+              <Button 
+                onClick={() => setShowDeleteAccountDialog(true)}
+                variant="ghost" 
+                className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Elimina Account
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -548,6 +551,30 @@ export default function SettingsSection() {
           </div>
         </CardContent>
       </Card>
+
+      {isDeleting && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <Card className="bg-gray-800/50 border-red-800/50 p-8 text-center max-w-md">
+            <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+              <Trash2 className="w-8 h-8 text-white" />
+            </div>
+            
+            <h2 className="text-2xl font-bold text-white mb-4">Eliminazione in corso...</h2>
+            
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Loader2 className="w-6 h-6 text-red-400 animate-spin" />
+              <p className="text-gray-300">Stiamo eliminando il tuo account</p>
+            </div>
+            
+            <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 mb-4">
+              <p className="text-sm text-red-300">
+                Non chiudere questa pagina durante l'operazione
+              </p>
+            </div>
+          </Card>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -204,16 +204,9 @@ export default function QREntry() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
       <Card className="bg-gray-900 border-purple-800/30 text-white max-w-lg w-full">
         <div className="text-center space-y-6 p-8">
-          {/* Header */}
-          {/* <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mx-auto">
-            <Mic2 className="w-8 h-8 text-white" />
-          </div> */}
           <div className="flex items-center gap-3 mb-6 justify-center">
-              {/* <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                <Mic2 className="w-6 h-6 text-white" />
-              </div> */}
                 <img 
-                  src="/logo2.png"
+                  src="/logo.png"
                   alt="Karaokati" 
                   className="h-10 w-auto"
                 />
@@ -221,13 +214,13 @@ export default function QREntry() {
           
           {/* Titolo dinamico */}
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Benvenuto! 🎤</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Benvenuto!</h1>
             <h2 className="text-xl text-purple-300 mb-2">
               Karaoke con {djInfo?.stage_name || 'DJ'}
             </h2>
             {djInfo?.venue_name && (
               <h3 className="text-lg text-pink-300 mb-4">
-                📍 {djInfo.venue_name}
+                📍{djInfo.venue_name}
               </h3>
             )}
             <p className="text-gray-300">
@@ -296,7 +289,7 @@ export default function QREntry() {
                 <span>Creazione sessione...</span>
               </div>
             ) : (
-              "🎵 Accetta e Inizia Sessione"
+              "🎤 Accetta e Inizia Sessione"
             )}
           </Button>
 

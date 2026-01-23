@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { apiClient } from '@/api/apiClient';
+import { toast } from "sonner";
 
 export default function Suggestions() {
   const [suggestion, setSuggestion] = useState("");
@@ -39,38 +40,30 @@ export default function Suggestions() {
 		} catch (error) {
 		console.error("Errore invio suggerimento:", error);
 		// Opzionale: mostra toast di errore
-		// toast.error("Errore nell'invio del suggerimento");
+		toast.error("Errore nell'invio del suggerimento");
 		}
 	}
 	};
+
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* Header */}
       <header className="fixed top-0 w-full bg-gray-900/80 backdrop-blur-md border-b border-purple-800/30 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to={createPageUrl("Home")} className="flex items-center gap-3 group">
-                <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" />
-                <div className="flex items-center">
-                <img 
-                  src="/logo2.png"
-                  alt="Karaokati" 
-                  className="h-8 w-auto"
-                />
-                </div>
-              </Link>
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl("Access")}>
-              <Button variant="ghost" className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/50">
-                Accedi
-              </Button>
-            </Link>
-            <Link to={createPageUrl("Register")}>
-              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                Registrati Gratis
-              </Button>
-            </Link>
-          </div>
+          <Link to={createPageUrl("home")} onClick={handleLogoClick} className="flex items-center gap-3 group">
+            {/* <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" /> */}
+            <div className="flex items-center">
+            <img 
+              src="/logo.png"
+              alt="Karaokati" 
+              className="h-8 w-auto"
+            />
+            </div>
+          </Link>
         </div>
       </header>
 
@@ -204,7 +197,7 @@ export default function Suggestions() {
       {/* Footer */}
       <footer className="bg-gray-950 text-white py-8 px-6 border-t border-purple-800/30 mt-12">
         <div className="max-w-5xl mx-auto text-center text-gray-400 text-sm">
-          <p>© 2025 Karaokati. Tutti i diritti riservati.</p>
+          <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
         </div>
       </footer>
     </div>

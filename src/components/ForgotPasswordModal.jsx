@@ -47,7 +47,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
   const handleBackToLogin = () => {
     onClose();
-    navigate(createPageUrl("Access"));
+    navigate(createPageUrl("login"));
   };
 
   const handleOverlayClick = (e) => {
@@ -85,20 +85,9 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
           </button>
 
           <CardHeader className="text-center pb-6">
-            {/* <div className="flex items-center gap-3 mb-6 justify-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                <Mic2 className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Karaokati
-              </span>
-            </div> */}
             <div className="flex items-center gap-3 mb-6 justify-center">
-              {/* <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                <Mic2 className="w-6 h-6 text-white" />
-              </div> */}
                 <img 
-                  src="/logo2.png"
+                  src="/logo.png"
                   alt="Karaokati" 
                   className="h-10 w-auto"
                 />

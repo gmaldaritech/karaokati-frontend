@@ -81,20 +81,9 @@ export default function VerifyEmail() {
         return (
           <>
             <CardHeader className="text-center pb-6">
-              {/* <div className="flex items-center gap-3 mb-6 justify-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                  <Mic2 className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Karaokati
-                </span>
-              </div> */}
               <div className="flex items-center gap-3 mb-6 justify-center">
-              {/* <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                <Mic2 className="w-6 h-6 text-white" />
-              </div> */}
                 <img 
-                  src="/logo2.png"
+                  src="/logo.png"
                   alt="Karaokati"
                   className="h-10 w-auto"
                 />
@@ -131,14 +120,14 @@ export default function VerifyEmail() {
               </div>
 
               <div className="space-y-3 pt-2">
-                <Link to={createPageUrl("Register")} className="block">
+                <Link to={createPageUrl("register")} className="block">
                   <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6">
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Registrati di nuovo
                   </Button>
                 </Link>
 
-                <Link to={createPageUrl("Access")} className="block">
+                <Link to={createPageUrl("login")} className="block">
                   <Button 
                     variant="ghost" 
                     className="w-full text-gray-400 hover:text-white hover:bg-gray-800/50"
@@ -194,7 +183,7 @@ export default function VerifyEmail() {
                 </p>
               </div>
 
-              <Link to={createPageUrl("Access")} className="block pt-2">
+              <Link to={createPageUrl("login")} className="block pt-2">
                 <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6">
                   Prosegui
                 </Button>
@@ -226,9 +215,9 @@ export default function VerifyEmail() {
 
       <footer className="absolute bottom-0 left-0 right-0 bg-gray-950/80 backdrop-blur-sm text-white py-6 px-6 border-t border-purple-800/30">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-          <p>© 2024 Karaokati. Tutti i diritti riservati.</p>
+          <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
           <div className="flex gap-6">
-            <Link to={createPageUrl("TermsOfService")} className="hover:text-white transition">Termini di servizio</Link>
+            <Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link>
             <a href="#" className="hover:text-white transition">Privacy Policy</a>
           </div>
         </div>

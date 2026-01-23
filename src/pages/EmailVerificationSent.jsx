@@ -67,7 +67,7 @@ export default function EmailVerificationSent() {
                 Invia nuovamente l'email
               </Button>
 
-              <Link to={createPageUrl("Access")} className="block">
+              <Link to={createPageUrl("login")} className="block">
                 <Button 
                   variant="ghost" 
                   className="w-full text-gray-400 hover:text-white hover:bg-gray-800/50"
@@ -84,9 +84,9 @@ export default function EmailVerificationSent() {
       {/* Footer */}
       <footer className="absolute bottom-0 left-0 right-0 bg-gray-950/80 backdrop-blur-sm text-white py-6 px-6 border-t border-purple-800/30">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-          <p>© 2024 Karaokati. Tutti i diritti riservati.</p>
+          <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
           <div className="flex gap-6">
-            <Link to={createPageUrl("TermsOfService")} className="hover:text-white transition">Termini di servizio</Link>
+            <Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link>
             <a href="#" className="hover:text-white transition">Privacy Policy</a>
           </div>
         </div>

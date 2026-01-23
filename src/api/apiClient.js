@@ -42,6 +42,7 @@ class ApiClient {
   getHeaders() {
     const headers = {
       'Content-Type': 'application/json',
+      'X-Frontend-Origin': window.location.origin,  // ← AGGIUNTO
     };
 
     if (this.token) {
@@ -79,7 +80,11 @@ async request(endpoint, options = {}) {
             '/bookings/user'
         ];
         
-        const authEndpoints = ['/auth/register', '/auth/login'];
+        const authEndpoints = [
+          '/auth/register', 
+          '/auth/login',
+          '/auth/change-password'
+        ];
         
         const isSessionEndpoint = sessionEndpoints.some(ep => endpoint.includes(ep));
         const isAuthEndpoint = authEndpoints.some(ep => endpoint.includes(ep));

@@ -1,4 +1,3 @@
-//import React, { useState, useEffect } from "react";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ConfirmDialog from "../ConfirmDialog";
-// import { toast } from "@/components/ui/use-toast";
 import { apiClient } from "@/api/apiClient";
 import { toast } from "sonner";
 
@@ -93,7 +91,6 @@ const stopSilentPolling = useCallback(() => {
   }
 }, []);
 
-// 🆕 AGGIUNGI questo useEffect dopo quelli esistenti (circa riga 75)
 // GESTIONE CICLO DI VITA POLLING
 useEffect(() => {
   if (activeVenue?.id) {
@@ -174,11 +171,6 @@ useEffect(() => {
       }
     } catch (error) {
       console.error('Error loading initial data:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile caricare i dati",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile caricare i dati");
     } finally {
       setLoading(false);
@@ -226,11 +218,6 @@ useEffect(() => {
       setBookings(transformedBookings);
     } catch (error) {
       console.error('Error loading bookings:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: "Impossibile caricare le prenotazioni",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile caricare le prenotazioni");
     }
   };
@@ -263,17 +250,8 @@ useEffect(() => {
     try {
       await apiClient.acceptBooking(id);
       setBookings(bookings.map(b => b.id === id ? { ...b, status: "accepted" } : b));
-      // toast({
-      //   title: "Successo",
-      //   description: "Prenotazione accettata",
-      // });
     } catch (error) {
       console.error('Error accepting booking:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile accettare la prenotazione",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile accettare la prenotazione");
     }
   };
@@ -282,18 +260,9 @@ useEffect(() => {
     try {
       await apiClient.deleteBooking(id);
       setBookings(bookings.filter(b => b.id !== id));
-      // toast({
-      //   title: "Successo",
-      //   description: "Prenotazione eliminata",
-      // });
       toast.success("Prenotazione eliminata")
     } catch (error) {
       console.error('Error rejecting booking:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile eliminare la prenotazione",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile eliminare la prenotazione");
     }
   };
@@ -303,18 +272,9 @@ useEffect(() => {
       await apiClient.deleteVenueBookings(activeVenue.id);
       setBookings([]);
       setShowDeleteAllDialog(false);
-      // toast({
-      //   title: "Successo",
-      //   description: "Tutte le prenotazioni eliminate",
-      // });
       toast.success("Tutte le prenotazioni sono state eliminate");
     } catch (error) {
       console.error('Error deleting all bookings:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile eliminare le prenotazioni",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile eliminare le prenotazioni");
     }
   };
@@ -351,17 +311,8 @@ useEffect(() => {
       setSongSearch("");
       setSearchResults([]);
 
-      // toast({
-      //   title: "Successo",
-      //   description: "Prenotazione manuale creata",
-      // });
     } catch (error) {
       console.error('Error creating manual booking:', error);
-      // toast({
-      //   title: "Errore",
-      //   description: error.message || "Impossibile creare la prenotazione",
-      //   variant: "destructive",
-      // });
       toast.error("Impossibile creare la prenotazione");
     } finally {
       setSubmitting(false);
@@ -428,10 +379,10 @@ useEffect(() => {
           <CardContent className="p-12 text-center">
             <MapPin className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              Nessuna serata attivata
+              Nessuna serata avviata
             </h3>
             <p className="text-gray-400">
-              Attiva un locale per vedere le prenotazioni ad esso associate
+              Avvia la serata in un locale per vedere le prenotazioni ad esso associate
             </p>
           </CardContent>
         </Card>
@@ -640,7 +591,7 @@ useEffect(() => {
               <div className="p-8 text-center">
                 <Music className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  Nessuna prenotazione ancora
+                  Nessuna prenotazione
                 </h3>
                 <p className="text-gray-400 mb-6">
                   Il locale <span className="font-semibold text-purple-400">{activeVenue?.name}</span> è attivo ma non ci sono ancora prenotazioni
