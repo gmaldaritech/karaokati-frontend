@@ -9,48 +9,48 @@ export default function QRAccessDenied() {
   
   // 🆕 Configurazione errori aggiornata con più casi d'uso
   const errorConfig = {
-    qr_expired: {
+      qr_expired: {
       mainIcon: XCircle,
       smallIcon: Clock,
-      title: "QR Code scaduto",
-      description: "Il QR code che hai scansionato non è più valido",
-      detailsTitle: "Sessione scaduta",
-      detailsText: "I QR code hanno una validità di 6 ore per motivi di sicurezza. Questo codice è stato generato troppo tempo fa e non è più utilizzabile.",
+      title: "Sessione scaduta",
+      description: "La tua sessione è scaduta",
+      detailsTitle: "Sessione utente scaduta",
+      detailsText: "Le sessioni utente hanno una validità limitata per motivi di sicurezza. La tua sessione è scaduta e non puoi più effettuare prenotazioni.",
       howToTitle: "Come risolvere",
-	steps: [
-		"Scansiona il nuovo codice",
-		"Inizia a prenotare le tue canzoni preferite! 🎤"
-	],
+      steps: [
+        "Scansiona nuovamente il QR code del DJ",
+        "Inizia a prenotare le tue canzoni preferite! 🎤"
+      ],
     },
     no_active_venue: {
-      mainIcon: XCircle,
-      smallIcon: MapPin,
-      title: "Nessuna serata avviata",
-      description: "Il DJ non ha ancora avviato la serata",
-      detailsTitle: "Locale non configurato",
-      detailsText: "Il DJ deve ancora avviare la serata prima che tu possa prenotare le canzoni. La configurazione richiede solo pochi secondi.",
-      howToTitle: "Come risolvere",
-      steps: [
-        "Attendi qualche secondo che il DJ avvii la serata nel locale",
-        "Scansiona di nuovo il QR code"
-      ],
-      //helpNote: "Il DJ può attivare un locale dalla dashboard in pochi secondi"
-    },
+    mainIcon: XCircle,
+    smallIcon: MapPin,
+    title: "Locale non attivo",
+    description: "Il DJ non ha un locale attivo al momento",
+    detailsTitle: "Sessione non valida",
+    detailsText: "Il DJ deve attivare un locale oppure ha cambiato locale. In entrambi i casi, la tua sessione corrente non è più valida.",
+    howToTitle: "Come risolvere",
+    steps: [
+      "Scansiona nuovamente il QR code del DJ",
+      "Accederai automaticamente al locale attivo"
+    ],
+    helpNote: "Il QR code ti porterà sempre al locale attualmente attivo"
+  },
     qr_not_found: {
-      mainIcon: XCircle,
-      smallIcon: AlertTriangle,
-      title: "QR Code non trovato",
-      description: "Il QR code scansionato non esiste o non è valido",
-      detailsTitle: "Codice non riconosciuto",
-      detailsText: "Il QR code che hai scansionato non corrisponde a nessun DJ registrato nel sistema. Potrebbe essere un codice errato o danneggiato.",
-      howToTitle: "Come risolvere",
-      steps: [
-        "Verifica di aver scansionato il QR code corretto",
-        "Chiedi al DJ di mostrarti il QR code ufficiale",
-        "Assicurati che la camera sia ben focalizzata"
-      ],
-      helpNote: "Ogni DJ ha un QR code unico generato dalla piattaforma Karaokati"
-    },
+    mainIcon: XCircle,
+    smallIcon: AlertTriangle,
+    title: "DJ non riconosciuto",
+    description: "Il QR code scansionato non corrisponde a nessun DJ",
+    detailsTitle: "QR code non valido",
+    detailsText: "Il QR code che hai scansionato non appartiene a nessun DJ registrato nella piattaforma.",
+    howToTitle: "Come risolvere",
+    steps: [
+      "Verifica di aver scansionato il QR code giusto",
+      "Chiedi al DJ di mostrarti il QR code ufficiale Karaokati",
+      "Assicurati che il DJ sia registrato sulla piattaforma"
+    ],
+    helpNote: "Solo i DJ registrati su Karaokati hanno un QR code valido"
+  },
     connection_error: {
       mainIcon: XCircle,
       smallIcon: Wifi,
