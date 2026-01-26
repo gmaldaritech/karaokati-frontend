@@ -184,7 +184,7 @@ export default function ChatbotUser() {
     } catch (error) {
       console.error("Errore prenotazione:", error);
       
-      if (error.message.includes('429') || error.message.includes('limite')) {
+      if (error.message.includes('429') || error.message.includes('Limite prenotazioni raggiunto')) {
         addMessage("bot", "⚠️ Hai raggiunto il limite di prenotazioni per sessione!\n\nPuoi cancellare una prenotazione esistente per farne una nuova.");
         toast.error("Limite prenotazioni raggiunto ");
       } else if (error.message.includes('404') || error.message.includes('non trovata')) {
@@ -357,6 +357,11 @@ const handleSendMessage = async () => {
         <div className="flex gap-3 max-w-[90%]">
           <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
             <Mic2 className="w-5 h-5 text-white" />
+            <img 
+                  src="/logo_circle.png" 
+                  alt="Logo" 
+                  className="w-10 h-10" 
+            />
           </div>
           <div className="flex-1">
             <div className="bg-gray-800 border border-purple-800/30 rounded-2xl rounded-tl-sm px-5 py-3">
@@ -444,7 +449,7 @@ const handleSendMessage = async () => {
                        booking.status === "accepted" ? "✅ Accettata" : "❌ Rifiutata"}
                     </Badge>
                     <Badge variant="outline" className="border-purple-700/50 text-purple-300 text-xs">
-                      {booking.key === "0" ? "Originale" : `Tonalità ${booking.key}`}
+                      {booking.key === "0" ? "Tonalità: Originale" : `Tonalità: ${booking.key}`}
                     </Badge>
                   </div>
                   {booking.created_at && (
@@ -634,9 +639,14 @@ const handleSendMessage = async () => {
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-t-xl">
             <div className="flex items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                {/* <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                   <Mic2 className="w-6 h-6" />
-                </div>
+                </div> */}
+                <img 
+                  src="/logo_circle.png" 
+                  alt="Logo" 
+                  className="w-12 h-12" 
+                />
                 <div>
                   <h1 className="text-xl md:text-2xl font-bold">Karaokati Assistant</h1>
                   <p className="text-purple-100 text-xs md:text-sm">

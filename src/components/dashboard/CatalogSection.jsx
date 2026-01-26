@@ -362,7 +362,7 @@ export default function CatalogSection() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold mb-2 text-white">Catalogo Canzoni</h2>
-          <p className="text-gray-400">Gestisci il tuo repertorio musicale</p>
+          <p className="text-gray-400">Gestisci e configura il tuo catalogo</p>
         </div>
       </div>
       
