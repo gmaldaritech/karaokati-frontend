@@ -145,12 +145,11 @@ export default function VerifyEmail() {
           <>
             <CardHeader className="text-center pb-6">
               <div className="flex items-center gap-3 mb-6 justify-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                  <Mic2 className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Karaokati
-                </span>
+                <img 
+                  src="/logo.png"
+                  alt="Karaokati"
+                  className="h-10 w-auto"
+                />
               </div>
               <CardTitle className="text-2xl font-bold text-white">
                 Email Verificata!

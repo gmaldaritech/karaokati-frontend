@@ -73,7 +73,7 @@ const MobileHeader = () => (
   <header className="fixed top-0 w-full bg-gray-900/95 backdrop-blur-md border-b border-purple-800/30 z-50 lg:hidden">
     <div className="px-4 py-3 flex justify-between items-center">
       <Link to={createPageUrl("home")} className="flex items-center gap-2">
-        <img src="/logo.png" alt="Karaokati" className="h-7 w-auto" />
+        <img src="/logo.png" alt="Karaokati" className="h-9 w-auto" />
       </Link>
       <div className="flex items-center gap-3">
         <Link 
@@ -278,7 +278,7 @@ const MobileTabletLayout = ({ isTablet, isLandscape, formData, onInputChange, on
                   <span className="text-sm">Home</span>
                 </Link>
                 <div className="flex justify-center mb-4">
-                  <img src="/logo.png" alt="Karaokati" className="h-7 w-auto" />
+                  <img src="/logo.png" alt="Karaokati" className="h-9 w-auto" />
                 </div>
               </div>
             )}
@@ -339,7 +339,7 @@ const DesktopLayout = ({ formData, onInputChange, onSubmit, loading, showPasswor
         <div className="hidden md:block">
           <Link to={createPageUrl("home")} className="inline-flex items-center gap-3 mb-8 group">
             <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" />
-            <img src="/logo.png" alt="Karaokati" className="h-7 w-auto" />
+            <img src="/logo.png" alt="Karaokati" className="h-10 w-auto" />
           </Link>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-white">

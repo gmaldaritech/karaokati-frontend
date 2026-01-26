@@ -107,7 +107,7 @@ const Header = () => {
           <img 
             src="/logo.png"
             alt="Karaokati" 
-            className="h-8 w-auto"
+            className="h-10 w-auto"
           />
           </div>
         </Link>
