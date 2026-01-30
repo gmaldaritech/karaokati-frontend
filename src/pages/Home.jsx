@@ -1272,6 +1272,7 @@ const Footer = () => (
           <div>
             <h4 className="font-bold mb-4">Informazioni</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
+              <li><Link to={createPageUrl("about-us")} className="hover:text-white transition">Chi siamo</Link></li>
               <li><Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link></li>
               <li><Link to={createPageUrl("terms")} className="hover:text-white transition">Contatti</Link></li>
             </ul>

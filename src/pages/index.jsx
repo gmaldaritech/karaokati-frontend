@@ -13,6 +13,7 @@ import QREntry from "./QREntry";
 import QRAccessDenied from "./QRAccessDenied";
 import Support from "./Support";
 import Suggestions from "./Suggestions.jsx";
+import AboutUs from "./AboutUs.jsx"
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -31,6 +32,7 @@ const PAGES = {
     QREntry: QREntry,
     QRAccessDenied: QRAccessDenied,
     suggestions: Suggestions,
+    "about-us": AboutUs,
 }
 
 function _getCurrentPage(url) {
@@ -68,6 +70,7 @@ function PagesContent() {
                 <Route path="/chat/:sessionId" element={<ChatbotUser />} />
                 <Route path="/qr-error/:type/:qrCodeId?" element={<QRAccessDenied />} />
                 <Route path="/suggestions" element={<Suggestions />} />
+                <Route path="/about-us" element={<AboutUs />} />
             </Routes>
         </Layout>
     );
