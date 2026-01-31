@@ -101,13 +101,12 @@ export default function ResetPassword() {
         <Card className="border-purple-800/30 bg-gray-900/50 backdrop-blur-sm shadow-2xl">
           <CardHeader className="text-center pb-6">
             <div className="flex items-center gap-3 mb-6 justify-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                <Mic2 className="w-7 h-7 text-white" />
+                <img 
+                  src="/logo.png"
+                  alt="Karaokati" 
+                  className="h-10 w-auto"
+                />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Karaokati
-              </span>
-            </div>
             <CardTitle className="text-2xl font-bold text-white">
               {submitted ? "Password Aggiornata!" : "Reimposta Password"}
             </CardTitle>
