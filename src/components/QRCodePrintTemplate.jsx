@@ -276,9 +276,9 @@ export const generateQRPrintHTML = (user, base64data, paypalQrCode = null) => {
     
     <!-- Header -->
     <div class="header">
-      <img src="/logo_print.png" alt="Karaokati Logo" class="logo-image" />
-      <h1 class="dj-name">${user?.stage_name}</h1>
-    </div>
+  <img src="/logo_print.png" alt="Karaokati Logo" class="logo-image" style="margin-bottom: 20px;" />
+  <h1 class="dj-name">${user?.stage_name}</h1>
+</div>
 
     <!-- QR Code principale -->
     <div class="qr-section">
