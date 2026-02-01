@@ -459,63 +459,64 @@ const DesktopLayout = ({
   showConfirmPassword,
   setShowConfirmPassword
 }) => (
-  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-6">
+  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col">
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div className="absolute top-20 right-20 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-20 left-20 w-72 h-72 bg-pink-600/20 rounded-full blur-3xl animate-pulse" />
     </div>
 
-    <div className="w-full max-w-5xl relative z-10">
-      <div className="grid md:grid-cols-2 gap-12 items-center">
-        
-        {/* Hero Section */}
-        <div className="hidden md:block">
-          <Link to={createPageUrl("home")} className="inline-flex items-center gap-3 mb-8 group">
-            <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" />
-            <img src="/logo.png" alt="Karaokati" className="h-10 w-auto" />
-          </Link>
-  
-
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-white">
-            Unisciti a<br />
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Karaokati
-            </span>
-          </h1>
-
-          <p className="text-lg text-gray-300 mb-8">
-            Crea il tuo account gratuito e inizia a gestire le tue serate karaoke 
-            in modo professionale con QR code personale e prenotazioni in tempo reale.
-          </p>
-
-          <DesktopFeatures />
-        </div>
-
-        {/* Form Card */}
-        <Card className="border-purple-800/30 bg-gray-900/50 backdrop-blur-sm shadow-2xl">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-white">Crea il tuo account</CardTitle>
-            <p className="text-gray-400 mt-2">Compila i campi per iniziare</p>
-          </CardHeader>
+    <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+      <div className="w-full max-w-5xl">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
           
-          <CardContent>
-            <RegisterForm
-              formData={formData}
-              onInputChange={onInputChange}
-              onSubmit={onSubmit}
-              loading={loading}
-              showPassword={showPassword}
-              setShowPassword={setShowPassword}
-              showConfirmPassword={showConfirmPassword}
-              setShowConfirmPassword={setShowConfirmPassword}
-            />
-          </CardContent>
-        </Card>
+          {/* Hero Section */}
+          <div className="hidden md:block">
+            <Link to={createPageUrl("home")} className="inline-flex items-center gap-3 mb-8 group">
+              <ArrowLeft className="w-5 h-5 text-purple-400 group-hover:-translate-x-1 transition" />
+              <img src="/logo.png" alt="Karaokati" className="h-10 w-auto" />
+            </Link>
+    
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-white">
+              Unisciti a<br />
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Karaokati
+              </span>
+            </h1>
+
+            <p className="text-lg text-gray-300 mb-8">
+              Crea il tuo account gratuito e inizia a gestire le tue serate karaoke 
+              in modo professionale con QR code personale e prenotazioni in tempo reale.
+            </p>
+
+            <DesktopFeatures />
+          </div>
+
+          {/* Form Card */}
+          <Card className="border-purple-800/30 bg-gray-900/50 backdrop-blur-sm shadow-2xl">
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl font-bold text-white">Crea il tuo account</CardTitle>
+              <p className="text-gray-400 mt-2">Compila i campi per iniziare</p>
+            </CardHeader>
+            
+            <CardContent>
+              <RegisterForm
+                formData={formData}
+                onInputChange={onInputChange}
+                onSubmit={onSubmit}
+                loading={loading}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                showConfirmPassword={showConfirmPassword}
+                setShowConfirmPassword={setShowConfirmPassword}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
 
-    {/* Desktop Footer */}
-    <footer className="absolute bottom-0 left-0 right-0 bg-gray-950/80 backdrop-blur-sm text-white py-6 px-6 border-t border-purple-800/30">
+    {/* Desktop Footer - ora con relative invece di absolute */}
+    <footer className="relative bg-gray-950/80 backdrop-blur-sm text-white py-6 px-6 border-t border-purple-800/30 z-20">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
         <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
         <div className="flex gap-6">
