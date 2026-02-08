@@ -64,7 +64,7 @@ export default function TermsOfService() {
           
           <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
             <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-              Ultimo aggiornamento: 09 Gennaio 2026
+              Ultimo aggiornamento: 07 Febbraio 2026
             </span>
           </div>
         </div>
@@ -184,46 +184,112 @@ export default function TermsOfService() {
           <Section number="6" title="Privacy e Dati">
             <div className="flex items-center gap-2 mb-4">
               <Shield className="w-5 h-5 text-purple-400" />
-              <span className="text-purple-400 font-semibold">I tuoi dati sono al sicuro</span>
+              <span className="text-purple-400 font-semibold">La tua privacy è importante</span>
             </div>
 
-            <p className="mb-4">Karaokati raccoglie solo i dati essenziali per funzionare:</p>
+            <p>Karaokati raccoglie solo i dati necessari per fornirti il servizio. Siamo trasparenti su cosa raccogliamo, come lo usiamo e con chi lo condividiamo.</p>
 
-            <div className="space-y-4">
-              <div className="bg-gray-800/50 rounded-lg p-4">
-                <p className="font-medium text-purple-300 mb-2">📧 Cosa Raccogliamo:</p>
-                <ul className="text-sm space-y-1 ml-4 list-disc list-inside">
-                  <li>Email (per login e comunicazioni)</li>
-                  <li>Nome (facoltativo, per personalizzazione)</li>
-                  <li>Catalogo canzoni che carichi</li>
-                  <li>Prenotazioni ricevute</li>
-                </ul>
-              </div>
-
-              <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-4">
-                <p className="text-green-300 mb-2">✅ NON raccogliamo o condividiamo:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4">
-                  <li>Dati sensibili personali</li>
-                  <li>Dati di navigazione per marketing</li>
-                  <li>Le tue informazioni con terze parti</li>
-                </ul>
-              </div>
-
-              <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
-                <p className="text-blue-300 mb-2">🍪 Cookie Tecnici:</p>
-                <p className="text-gray-300 text-sm">
-                  Usiamo solo cookie necessari per farti accedere e mantenere la sessione attiva. 
-                  Niente pubblicità, niente tracciamento, niente profilazione.
+            {/* COSA RACCOGLIAMO */}
+            <div className="bg-gray-800/50 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-purple-300 mb-2">📊 Dati che Raccogliamo</p>
+              <ul className="space-y-2 ml-4 text-gray-300">
+                <li><strong>Account:</strong> Email, password (criptata), nome artistico, telefono (facoltativo)</li>
+                <li><strong>Servizio:</strong> Catalogo canzoni, prenotazioni, locali, serate, QR code</li>
+                <li><strong>Tecnici (anonimi):</strong> IP, browser, dispositivo, pagine visitate (Vercel Analytics - no cookie)</li>
+                <li><strong>Analytics (solo se accetti cookie):</strong> Navigazione dettagliata, eventi, tempo permanenza, provenienza traffico (Google Analytics)</li>
+              </ul>
+              <div className="bg-yellow-900/20 border border-yellow-700/30 rounded p-2 mt-3">
+                <p className="text-yellow-300 text-sm">
+                  ⚠️ <strong>Google Analytics:</strong> Dati processati da Google LLC (USA). Google può usare dati aggregati. Puoi rifiutare dal banner cookie.
                 </p>
               </div>
+            </div>
 
-              <div>
-                <p className="font-semibold text-white mb-2">I Tuoi Diritti</p>
-                <p className="text-gray-300 text-sm">
-                  Puoi sempre vedere, modificare o eliminare i tuoi dati dalla dashboard. 
-                  Se vuoi cancellare completamente l'account, potrai farlo in autonomia dalla tua area riservata oppure scrivendoci.
+            {/* COME LI USIAMO */}
+            <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-blue-300 mb-2">🎯 Per cosa usiamo i Dati</p>
+              <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4">
+                <li>Fornirti il servizio (account, catalogo, prenotazioni)</li>
+                <li>Comunicazioni essenziali (verifica email, reset password)</li>
+                <li>Sicurezza (prevenire abusi e frodi)</li>
+                <li>Migliorare la piattaforma (analisi anonime)</li>
+                <li>Assistenza tecnica</li>
+              </ul>
+              <p className="text-blue-200 text-xs mt-2">
+                ✅ <strong>NON usiamo dati per:</strong> Spam, pubblicità mirata, vendita a terzi
+              </p>
+            </div>
+
+            {/* TERZE PARTI */}
+            <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-purple-300 mb-2">🔗 Condivisione con Terze Parti</p>
+              <p className="text-gray-300 mb-2"><strong>Partner Tecnologici (sempre):</strong> Vercel (hosting), Railway (API), Resend (email)</p>
+              <p className="text-gray-300"><strong>Analytics (solo se accetti):</strong> Google Analytics (USA) - <a href="https://policies.google.com/privacy" target="_blank" className="text-purple-400 underline">Privacy Policy</a></p>
+              <p className="text-yellow-300 text-xs mt-2">
+                ⚠️ Trasferimento dati extra-UE protetto da Clausole Contrattuali Standard (GDPR)
+              </p>
+              <div className="bg-green-900/20 border border-green-700/30 rounded p-2 mt-3">
+                <p className="text-green-300 text-xs">
+                  ✅ <strong>NON vendiamo MAI</strong> i tuoi dati a broker o aziende pubblicitarie
                 </p>
               </div>
+            </div>
+
+            {/* COOKIE */}
+            <div className="bg-gray-800/50 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-purple-300 mb-2">🍪 Cookie</p>
+              <ul className="space-y-2 ml-4 text-gray-300">
+                <li><strong>Tecnici (sempre attivi):</strong> Session cookie per login, preferenze UI</li>
+                <li><strong>Analitici (richiedono consenso):</strong> Google Analytics (_ga, _gid) - Durata: 24 mesi</li>
+              </ul>
+              <p className="text-purple-300 text-xs mt-2 ml-4">
+                💡 Puoi rifiutare dal banner. La scelta viene salvata.
+              </p>
+            </div>
+
+            {/* DIRITTI GDPR */}
+            <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-blue-300 mb-2">⚖️ I Tuoi Diritti (GDPR)</p>
+              <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4">
+                <li><strong>Accesso:</strong> Vedi i tuoi dati dalla dashboard</li>
+                <li><strong>Modifica:</strong> Cambia email, nome, telefono</li>
+                <li><strong>Cancellazione:</strong> Elimina account (30 giorni)</li>
+                <li><strong>Esportazione:</strong> Scarica dati in CSV/JSON</li>
+                <li><strong>Opposizione:</strong> Rifiuta cookie analitici</li>
+                <li><strong>Reclamo:</strong> <a href="https://www.garanteprivacy.it" target="_blank" className="text-purple-400 underline">Garante Privacy</a></li>
+              </ul>
+            </div>
+
+            {/* SICUREZZA */}
+            <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-green-300 mb-2">🔒 Sicurezza</p>
+              <ul className="list-disc list-inside ml-4 text-gray-300space-y-1">
+                <li>HTTPS/TLS per comunicazioni</li>
+                <li>Password criptate (bcrypt)</li>
+                <li>Database protetto da firewall</li>
+              </ul>
+              <p className="text-yellow-300 text-xs mt-2">
+                ⚠️ Nessun sistema è sicuro al 100%. Violazioni notificate entro 72h (GDPR).
+              </p>
+            </div>
+
+            {/* CONSERVAZIONE */}
+            <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-purple-300 mb-2">📅 Conservazione Dati</p>
+              <ul className="list-disc list-inside ml-4 text-gray-300space-y-1">
+                <li><strong>Account attivo:</strong> Finché usi il servizio</li>
+                <li><strong>Account cancellato:</strong> 30 giorni</li>
+                <li><strong>Cookie Analytics:</strong> 24 mesi</li>
+                <li><strong>Log sicurezza:</strong> 12 mesi</li>
+              </ul>
+            </div>
+
+            {/* MINORI */}
+            <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mt-4">
+              <p className="font-semibold text-red-300 mb-2">👶 Minori di 16 anni</p>
+              <p className="text-gray-300">
+                Karaokati è per professionisti adulti. Serve consenso genitoriale se hai meno di 16 anni.
+              </p>
             </div>
           </Section>
 
@@ -405,7 +471,7 @@ export default function TermsOfService() {
       <footer className="bg-gray-950 text-white py-8 px-6 border-t border-purple-800/30 mt-12">
         <div className="max-w-5xl mx-auto text-center text-gray-400 text-sm">
           <p>© 2026 Karaokati. Tutti i diritti riservati.</p>
-          <p className="mt-2">Ultimo aggiornamento: 09 Gennaio 2026</p>
+          <p className="mt-2">Ultimo aggiornamento: 07 Febbraio 2026</p>
         </div>
       </footer>
     </div>
