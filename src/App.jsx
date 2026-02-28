@@ -1,6 +1,6 @@
 import './App.css'
 import Pages from "@/pages/index.jsx"
-import { Toaster } from "sonner" // ← CAMBIA QUESTA RIGA
+import { Toaster } from "sonner"
 
 function App() {
   return (

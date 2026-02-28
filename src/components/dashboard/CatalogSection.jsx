@@ -720,7 +720,7 @@ export default function CatalogSection() {
                   <div className="col-span-10">Nome File</div>
                   {/* <div className="col-span-2">Azioni</div> */}
                 </div>
-                {songs.map((song, index) => (
+                {/* {songs.map((song, index) => (
                   <div
                     key={song.id}
                     className="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 py-4 bg-gray-900/30 border border-purple-800/20 rounded-lg hover:border-purple-600/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all"
@@ -736,8 +736,33 @@ export default function CatalogSection() {
                       </div>
                     </div>
                   </div>
+                ))} */}
+                {songs.map((song, index) => (
+                  <div
+                    key={song.id}
+                    className="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 py-4 bg-gray-900/30 border border-purple-800/20 rounded-lg hover:border-purple-600/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all"
+                  >
+                    <div className="col-span-1 md:col-span-11">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-700/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Music className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-white break-all">{song.file_name}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-span-1 flex items-center justify-end">
+                      <button
+                        onClick={() => handleDeleteSong(song.id)}
+                        className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
-              </div>
+                </div>
 
               {filteredSongs.length === 0 && searchQuery && (
                 <div className="text-center py-12">

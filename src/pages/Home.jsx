@@ -1253,7 +1253,7 @@ const Footer = () => (
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:col-span-3">
           <div>
             <h4 className="font-bold mb-4">Prodotto</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
@@ -1276,6 +1276,20 @@ const Footer = () => (
               <li><Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link></li>
               <li><Link to={createPageUrl("terms")} className="hover:text-white transition">Contatti</Link></li>
             </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-4">Social</h4>
+            <a 
+              href="https://www.facebook.com/profile.php?id=61588581801421" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition text-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+              Facebook
+            </a>
           </div>
         </div>
       </div>

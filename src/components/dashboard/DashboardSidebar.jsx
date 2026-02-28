@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Mic2, LayoutDashboard, MapPin, Music, ListOrdered, Settings, LogOut } from "lucide-react";
+import { Heart, Mic2, LayoutDashboard, MapPin, Music, ListOrdered, Settings, LogOut, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -12,6 +12,7 @@ export default function DashboardSidebar({ activeSection, setActiveSection }) {
     { id: "catalog", label: "Catalogo", icon: Music },
     { id: "bookings", label: "Prenotazioni", icon: ListOrdered },
     { id: "settings", label: "Impostazioni", icon: Settings },
+    { id: "tutorials", label: "Video Tutorial", icon: Play },
     { id: "support", label: "Supportaci", icon: Heart },
   ];
 

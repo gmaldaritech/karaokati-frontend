@@ -2,13 +2,13 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from '@/hooks/useAuth'
-import Pages from './pages/index.jsx'
+import App from './App.jsx'  // ← importa App invece di Pages
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>  {/* ← AGGIUNTO */}
-      <Pages />
+    <AuthProvider>
+      <App />  {/* ← usa App invece di Pages */}
       <Analytics 
         beforeSend={(event) => {
           const publicPages = [
@@ -31,6 +31,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return null;
         }}
       />
-    </AuthProvider>  {/* ← AGGIUNTO */}
+    </AuthProvider>
   </React.StrictMode>,
 )

@@ -6,6 +6,7 @@ import VenuesSection from "../components/dashboard/VenuesSection";
 import CatalogSection from "../components/dashboard/CatalogSection";
 import BookingsSection from "../components/dashboard/BookingsSection";
 import SettingsSection from "../components/dashboard/SettingsSection";
+import VideoTutorialSection from "../components/dashboard/VideoTutorialSection";
 import SupportSection from "@/components/dashboard/SupportSection";
 
 export default function Dashboard() {
@@ -32,6 +33,8 @@ export default function Dashboard() {
         return <BookingsSection />;
       case "settings":
         return <SettingsSection />;
+      case "tutorials":
+        return <VideoTutorialSection />;
       case "support":
         return <SupportSection />;
       default:
