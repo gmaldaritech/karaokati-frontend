@@ -64,9 +64,36 @@ export default function SettingsSection() {
     }
 
     // Telefono opzionale - se fornito, deve avere almeno 10 caratteri
-    if (settings.phone && settings.phone.trim() && settings.phone.trim().length < 10) {
-      toast.error("Inserisci un numero di telefono valido");
-      return;
+    // if (settings.phone && settings.phone.trim() && settings.phone.trim().length < 10) {
+    //   toast.error("Inserisci un numero di telefono valido");
+    //   return;
+    // }
+
+    // Telefono: opzionale, ma se presente deve essere valido
+    if (settings.phone && settings.phone.trim()) {
+      const phone = settings.phone.trim();
+
+      const allowedChars = /^[0-9+\s()-]+$/;
+      if (!allowedChars.test(phone)) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length < 6 || digits.length > 15) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+
+      if (phone.includes("+") && !phone.startsWith("+")) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+
+      if ((phone.match(/\+/g) || []).length > 1) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
     }
 
     try {
@@ -76,7 +103,8 @@ export default function SettingsSection() {
       await updateProfile({
         full_name: settings.full_name,
         stage_name: settings.stage_name,
-        phone: settings.phone,
+        // phone: settings.phone,
+        phone: settings.phone?.trim() || null,
         max_bookings_per_user: settings.max_bookings_per_user
       });
       

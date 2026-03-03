@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /home
+Allow: /register
+Allow: /login
+Allow: /terms
+Allow: /about-us
+Allow: /support
+Allow: /suggestions
+
+Disallow: /dj-dashboard
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /verify-email/
+Disallow: /sessions/entry/
+Disallow: /chat/
+Disallow: /qr-error/

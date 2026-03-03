@@ -156,19 +156,23 @@ const MobileHero = ({ isTablet }) => (
         </span>
       </div>
       
-      <h1 className={`font-bold mb-4 leading-tight text-white ${isTablet ? 'text-5xl mb-6' : 'text-3xl'}`}>
-        Addio ai{" "}
-        <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-          bigliettini
+      <h1 className="font-bold leading-tight text-white mb-4">
+        <span className={`${isTablet ? 'text-5xl' : 'text-3xl'} block`}>
+          Addio ai{" "}
+          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            bigliettini
+          </span>
         </span>
-        <br />
-        {isTablet ? 'Benvenuto al futuro del karaoke' : 'Karaoke digitale'}
+
+        <span className={`block mt-3 ${isTablet ? 'text-2xl' : 'text-lg'} font-semibold text-gray-300`}> 
+          Gestisci le tue serate karaoke con catalogo digitale e prenotazioni via QR code
+        </span>
       </h1>
       
       <p className={`text-gray-300 mb-6 leading-relaxed px-2 ${isTablet ? 'text-lg mb-8 max-w-3xl mx-auto px-0' : ''}`}>
-        Karaokati è la piattaforma italiana che rivoluziona le serate karaoke per DJ professionisti. 
-        Crea il tuo catalogo digitale, distribuisci il tuo QR code personale e ricevi prenotazioni 
-        in tempo reale tramite un chatbot integrato. Completamente gratuito.
+        Karaokati è la piattaforma italiana pensata per DJ professionisti. Importa il tuo catalogo, condividi il QR code personale e ricevi 
+        le prenotazioni in tempo reale tramite chatbot — senza bigliettini, 
+        senza carta, senza stress.
       </p>
 
       <div className={`space-y-3 mb-8 ${isTablet ? 'flex flex-col sm:flex-row gap-4 justify-center space-y-0' : ''}`}>
@@ -197,28 +201,33 @@ const DesktopHero = () => (
             Gestisci il tuo karaoke in modo professionale
           </span>
         </div>
-        
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-white">
-          Addio ai{" "}
-          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-            bigliettini
+
+        <h1 className="mb-8 leading-tight text-white">
+          <span className="block text-5xl md:text-6xl font-bold">
+            Addio ai{" "}
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+              bigliettini
+            </span>
           </span>
-          <br />
-          Benvenuto al futuro del karaoke
+
+          <span className="block mt-5 text-2xl md:text-3xl font-medium">
+            Gestisci le tue serate karaoke con catalogo digitale e prenotazioni via QR code
+          </span>
         </h1>
-        
-        <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-          Karaokati è la piattaforma italiana che rivoluziona le serate karaoke per DJ professionisti. 
-          Gestisci prenotazioni in tempo reale con QR code, crea il tuo catalogo digitale e ricevi 
-          prenotazioni tramite un chatbot integrato.
+
+        <p className="text-lg md:text-xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
+          Karaokati è la piattaforma italiana pensata per DJ professionisti. Importa il tuo catalogo, condividi il QR code personale e ricevi 
+          le prenotazioni in tempo reale tramite chatbot — senza bigliettini, 
+          senza carta, senza stress.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to={createPageUrl("register")}>
-            <a className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center gap-2 transition">
-              Inizia Gratis
-              <ArrowRight className="w-5 h-5" />
-            </a>
+          <Link
+            to={createPageUrl("register")}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center gap-2 transition"
+          >
+            Inizia Gratis
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
 

@@ -628,6 +628,32 @@ export default function Register() {
       return;
     }
 
+    if (formData.phone && formData.phone.trim()) {
+      const phone = formData.phone.trim();
+
+      const allowedChars = /^[0-9+\s()-]+$/;
+      if (!allowedChars.test(phone)) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length < 6 || digits.length > 15) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+
+      if (phone.includes("+") && !phone.startsWith("+")) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+
+      if ((phone.match(/\+/g) || []).length > 1) {
+        toast.error("Inserisci un numero di telefono valido");
+        return;
+      }
+    }
+
     try {
       const result = await register({
         full_name: formData.fullName,
