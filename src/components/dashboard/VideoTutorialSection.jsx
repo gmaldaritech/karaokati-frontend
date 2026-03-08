@@ -6,16 +6,21 @@ import LazyVideo from "@/components/LazyVideo";
 const tutorials = [
   {
     id: 1,
+    title: "PRIMI PASSI su Karaokati: tutto quello che devi sapere 🎤",
+    duration: "7:06",
+    thumbnail: "/tutorials/panoramica_primi_passi.png",
+    videoUrl: "/tutorials/panoramica_primi_passi.mp4"
+  },
+  {
+    id: 2,
     title: "⚡ IMPORTA i tuoi titoli da EXCEL e crea il catalogo",
-    description: "Scopri come configurare il tuo account e iniziare a usare la piattaforma",
     duration: "1:50",
     thumbnail: "/tutorials/catalogo_importa_massivamente.png",
     videoUrl: "/tutorials/catalogo_importa_massivamente.mp4"
   },
   {
-    id: 2,
+    id: 3,
     title: " 🚀 GENERA il catalogo AUTOMATICAMENTE partendo dalle tue basi karaoke (POPOLARE) 🚀",
-    description: "Impara a creare i tuoi locali e attivarli per le serate karaoke",
     duration: "3:21",
     thumbnail: "/tutorials/catalogo_genera_automaticamente.png",
     videoUrl: "/tutorials/catalogo_genera_automaticamente.mp4"
