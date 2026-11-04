@@ -50,10 +50,18 @@ export default function ChatbotUser() {
   const [allSearchResults, setAllSearchResults] = useState([]);
   const [searchInDialog, setSearchInDialog] = useState("");
   const [catalogSongs, setCatalogSongs] = useState([]); // 🆕 Catalogo dinamico dal backend
+  const [bookingNotes, setBookingNotes] = useState("");
+
+  const [catalogTotal, setCatalogTotal] = useState(null); // null = sconosciuto
+  const [isFreeRequest, setIsFreeRequest] = useState(false);
+
+  const noCatalog = catalogTotal === 0;
+  const hasCatalog = catalogTotal !== null && catalogTotal > 0;
+  const showFreeRequestLink = hasCatalog && sessionData?.dj?.allow_free_requests === true;
   
   const messagesEndRef = useRef(null);
   const songsPerPage = 8;
-  const maxSongsInChat = 3;
+  const maxSongsInChat = 0;
 
   const validateSessionBeforeAction = async () => {
   try {
@@ -65,8 +73,9 @@ export default function ChatbotUser() {
       handleInvalidSession(data.message || data.error || "Sessione non valida");
       return false;
     }
-    
-    return true;
+
+    setSessionData(data);
+    return data;
   } catch (error) {
     console.error("Errore validazione:", error);
     handleInvalidSession("connection_error");
@@ -86,10 +95,18 @@ export default function ChatbotUser() {
           setSessionData(data);
           setIsValidSession(true);
           
+          const total = await loadDJCatalog(data.dj.qr_code_id);
+          await loadUserBookings();
+
+          const intro = `🎤 Ciao! Benvenuto da ${data.dj.stage_name}!\n📍 ${data.active_venue.name}\n\n`;
+          const welcomeText = total === 0
+            ? `${intro}Qui non c'è un catalogo da sfogliare, quindi scegli tu!\n\nScrivi il titolo e l'artista della canzone che vuoi cantare e la invieremo al DJ.`
+            : `${intro}Sono qui per aiutarti a prenotare la tua canzone preferita.\n\nCerca una canzone scrivendo il titolo o il nome dell'artista!`;
+
           setMessages([{
             id: 1,
             type: "bot",
-            text: `🎤 Ciao! Benvenuto da ${data.dj.stage_name}!\n📍 ${data.active_venue.name}\n\nSono qui per aiutarti a prenotare la tua canzone preferita.\n\nCerca una canzone scrivendo il titolo o il nome dell'artista!`,
+            text: welcomeText,
             timestamp: new Date()
           }]);
           
@@ -116,12 +133,16 @@ export default function ChatbotUser() {
   const loadDJCatalog = async (qrCodeId) => {
     try {
       // 🆕 Carica solo le prime 10 canzoni o nessuna
-      const data = await apiClient.getPublicCatalog(qrCodeId, { limit: 10 });
+            const data = await apiClient.getPublicCatalog(qrCodeId, { limit: 10 });
+      const total = data.total || 0;
+      setCatalogTotal(total);
       setCatalogSongs([]); // 🆕 Lascia vuoto, useremo ricerca server-side
-      console.log(`Catalogo disponibile: ${data.total || 0} canzoni totali`);
+      console.log(`Catalogo disponibile: ${total} canzoni totali`);
+      return total;
     } catch (error) {
       console.error("Errore catalogo:", error);
       toast.error("Errore nel caricamento del catalogo");
+      return null;
     }
   };
 
@@ -158,7 +179,7 @@ export default function ChatbotUser() {
   };
 
   // Prenota canzone
-  const bookSong = async (userName, songName, key) => {
+  const bookSong = async (userName, songName, key, notes, isFree = false) => {
     try {
       const sessionValid = await validateSessionBeforeAction();
       if (!sessionValid) return false;
@@ -166,7 +187,9 @@ export default function ChatbotUser() {
       const result = await apiClient.createUserBooking({
         user_name: userName,
         song: songName,
-        key: key
+        key: key,
+        notes: notes?.trim() || "",
+        is_free_request: isFree
       });
       
       await loadUserBookings();
@@ -185,7 +208,7 @@ export default function ChatbotUser() {
       console.error("Errore prenotazione:", error);
       
       if (error.message.includes('429') || error.message.includes('Limite prenotazioni raggiunto')) {
-        addMessage("bot", "⚠️ Hai raggiunto il limite di prenotazioni per sessione!\n\nPuoi cancellare una prenotazione esistente per farne una nuova.");
+        addMessage("bot", "⚠️ Hai raggiunto il limite di prenotazioni per sessione!\n\nPer prenotare un'altra canzone, clicca sul pulsante dal pulsante 'Le mie prenotazioni' e cancella una delle tue prenotazioni ancora in attesa: quelle già accettate dal DJ non si possono più annullare.");
         toast.error("Limite prenotazioni raggiunto ");
       } else if (error.message.includes('404') || error.message.includes('non trovata')) {
         addMessage("bot", "❌ Canzone non trovata nel catalogo del DJ.\n\nProva a cercare un'altra canzone!");
@@ -269,71 +292,115 @@ const showMyBookings = async () => {
   const showHelp = () => {
     addMessage("user", "❓ Aiuto");
     setTimeout(() => {
-      addMessage("bot", `🤖 Ecco cosa posso fare per te:\n\n✨ Cerca canzoni scrivendo il titolo o l'artista\n📋 Usa il pulsante "Le mie prenotazioni" per vedere le tue richieste\n❌ Cancella una prenotazione dalla lista\n🎵 Prenota una canzone cliccandoci sopra\n\nProva a cercare una canzone ora!`);
+      const helpText = noCatalog
+        ? `🤖 Ecco cosa posso fare per te:\n\n🎤 Scrivi il titolo e l'artista della canzone che vuoi cantare\n📝 Compila i dati e invia la richiesta al DJ\n📋 Usa il pulsante "Le mie prenotazioni" per vedere le tue richieste\n❌ Cancella una richiesta dalla lista\n\nScrivi la tua canzone per iniziare!`
+        : `🤖 Ecco cosa posso fare per te:\n\n✨ Cerca canzoni scrivendo il titolo o l'artista\n🎵 Prenota una canzone cliccandoci sopra\n` +
+          (showFreeRequestLink
+            ? `🎤 Se non la trovi, usa "Fai una richiesta al DJ" sotto i risultati\n`
+            : ``) +
+          `📋 Usa il pulsante "Le mie prenotazioni" per vedere le tue richieste\n❌ Cancella una prenotazione dalla lista\n\nProva a cercare una canzone ora!`;
+
+      addMessage("bot", helpText);
     }, 300);
   };
 
-const handleSendMessage = async () => {
-  if (!inputValue.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
 
-  const sessionValid = await validateSessionBeforeAction();
-  if (!sessionValid) return;
+    const freshSession = await validateSessionBeforeAction();
+    if (!freshSession) return;
 
-  const searchTerm = inputValue;
-  setInputValue("");
-  
-  addMessage("user", searchTerm);
+    // Valore aggiornato: il DJ potrebbe aver cambiato l'impostazione dopo l'apertura della chat
+    const freeLinkNow = hasCatalog && freshSession.dj?.allow_free_requests === true;
 
-  // 🆕 Ricerca server-side invece di client-side
-  setTimeout(async () => {
-    try {
-      // 🆕 Chiamata API per ricerca ottimizzata
-      const data = await apiClient.getPublicCatalog(
-        sessionData.dj.qr_code_id, 
-        { search: searchTerm.trim(), limit: 1000 }
-      );
-      
-      const searchResults = data.songs || [];
+    const searchTerm = inputValue;
+    setInputValue("");
 
-      if (searchResults.length === 0) {
-        addMessage("bot", `🔍 Non ho trovato canzoni con "${searchTerm}".\n\nProva con:\n• Un altro titolo\n• Nome dell'artista\n• Parole chiave diverse\n\n💡 Usa "aiuto" per vedere cosa posso fare!`);
-      } else {
-        const displaySongs = searchResults.slice(0, maxSongsInChat);
-        const hasMore = searchResults.length > maxSongsInChat;
-        
-        addMessage("bot", `🎵 Trovate ${searchResults.length} canzoni con "${searchTerm}":`, {
-          type: "songList",
-          songs: displaySongs,
-          hasMore: hasMore,
-          totalCount: searchResults.length
-        });
+    addMessage("user", searchTerm);
+    console.log("FREE LINK DEBUG", {
+      catalogTotal,
+      allow: sessionData?.dj?.allow_free_requests,
+      freeLinkNow
+    });
 
-        if (hasMore) {
-          setAllSearchResults(searchResults);
-        }
-      }
-    } catch (error) {
-      console.error("Errore ricerca:", error);
-      addMessage("bot", "❌ Errore nella ricerca. Riprova!");
+    // DJ senza catalogo: apri subito il form con il testo precompilato
+    if (noCatalog) {
+      setTimeout(() => {
+        handleFreeRequest(searchTerm.trim());
+        addMessage("bot", "🎤 Scrivi qui sotto la canzone che vuoi cantare e invia la tua richiesta!");
+      }, 300);
+      return;
     }
-  }, 300);
-};
+
+    setTimeout(async () => {
+      try {
+        const data = await apiClient.getPublicCatalog(
+          sessionData.dj.qr_code_id,
+          { search: searchTerm.trim(), limit: 1000 }
+        );
+
+        const searchResults = data.songs || [];
+
+        if (searchResults.length === 0) {
+          addMessage("bot", `🔍 Non ho trovato canzoni con "${searchTerm}" o simili.\n\nProva con:\n• Un altro titolo\n• Nome dell'artista\n• Parole chiave diverse\n\n💡 Usa "aiuto" per vedere cosa posso fare!`, {
+            type: "songList",
+            songs: [],
+            hasMore: false,
+            totalCount: 0,
+            showFreeRequest: freeLinkNow,
+            searchTerm: searchTerm.trim()
+          });
+        } else {
+          const displaySongs = searchResults.slice(0, maxSongsInChat);
+          const hasMore = searchResults.length > maxSongsInChat;
+
+          addMessage("bot", `🎵 Trovate ${searchResults.length} canzoni con "${searchTerm}" o simili:`, {
+            type: "songList",
+            songs: displaySongs,
+            hasMore: hasMore,
+            totalCount: searchResults.length,
+            showFreeRequest: freeLinkNow,
+            searchTerm: searchTerm.trim()
+          });
+
+          if (hasMore) {
+            setAllSearchResults(searchResults);
+          }
+        }
+      } catch (error) {
+        console.error("Errore ricerca:", error);
+        addMessage("bot", "❌ Errore nella ricerca. Riprova!");
+      }
+    }, 300);
+  };
 
   const handleSongClick = (song) => {
+    setIsFreeRequest(false);
     setSelectedSong(song);
+    setShowKeyDialog(true);
+  };
+
+  const handleFreeRequest = (term = "") => {
+    setIsFreeRequest(true);
+    setSelectedSong(term);
+    setBookingUserName("");
     setShowKeyDialog(true);
   };
 
   const confirmBooking = async () => {
     if (!bookingUserName.trim()) return;
-    
-    const success = await bookSong(bookingUserName.trim(), selectedSong, selectedKey);
-    
+    if (isFreeRequest && !selectedSong?.trim()) return;
+
+    const songName = isFreeRequest ? selectedSong.trim() : selectedSong;
+    const success = await bookSong(bookingUserName.trim(), songName, selectedKey, bookingNotes, isFreeRequest);
+
     if (success) {
       setShowKeyDialog(false);
       setSelectedSong(null);
       setSelectedKey("0");
       setBookingUserName("");
+      setBookingNotes("");
+      setIsFreeRequest(false);
     }
   };
 
@@ -374,6 +441,9 @@ const handleSendMessage = async () => {
                 onSongClick={handleSongClick}
                 hasMore={message.data.hasMore}
                 totalCount={message.data.totalCount}
+                showFreeRequest={message.data.showFreeRequest}
+                searchTerm={message.data.searchTerm}
+                onFreeRequest={handleFreeRequest}
               />
             )}
 
@@ -386,7 +456,7 @@ const handleSendMessage = async () => {
     );
   };
 
-  const SongList = ({ songs, onSongClick, hasMore, totalCount }) => {
+  const SongList = ({ songs, onSongClick, hasMore, totalCount, showFreeRequest, searchTerm, onFreeRequest }) => {
     return (
       <div className="mt-3 space-y-2">
         <div className="grid grid-cols-1 gap-2">
@@ -416,6 +486,18 @@ const handleSendMessage = async () => {
           >
             <div className="text-purple-300 text-sm font-medium">
               🔍 Vedi tutti i {totalCount} risultati
+            </div>
+          </button>
+        )}
+
+        {showFreeRequest && (
+          <button
+            onClick={() => onFreeRequest("")}
+            className="w-full bg-gray-800/60 border border-pink-700/40 rounded-xl p-3 hover:border-pink-500/70 hover:bg-gray-800 transition-all text-center"
+          >
+            <div className="text-sm text-gray-300">
+              Non hai trovato quello che cercavi?{" "}
+              <span className="text-pink-400 font-medium block mt-1">Fai una richiesta al DJ</span>
             </div>
           </button>
         )}
@@ -454,7 +536,7 @@ const handleSendMessage = async () => {
                   </div>
                   {booking.created_at && (
                     <div className="text-xs text-gray-500 mt-1">
-                      {new Date(booking.created_at).toLocaleTimeString('it-IT', { 
+                      {new Date(/[zZ]$|[+-]\d{2}:?\d{2}$/.test(booking.created_at) ? booking.created_at : booking.created_at + 'Z').toLocaleTimeString('it-IT', { 
                         hour: '2-digit', 
                         minute: '2-digit' 
                       })}
@@ -562,22 +644,40 @@ const handleSendMessage = async () => {
           </DialogContent>
         </Dialog>
 
-        {/* Key Selection Dialog */}
         <Dialog open={showKeyDialog} onOpenChange={setShowKeyDialog}>
           <DialogContent className="bg-gray-900 border-purple-800/30 text-white">
             <DialogHeader>
-              <DialogTitle className="text-xl">🎵 Prenota questa canzone</DialogTitle>
+              <DialogTitle className="text-xl">
+                {isFreeRequest ? "🎤 Richiedi una canzone al DJ" : "🎵 Prenota questa canzone"}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <div className="p-4 bg-purple-900/30 border border-purple-700/50 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Music className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs text-gray-400 mb-1">Canzone Selezionata</div>
-                    <div className="font-medium text-white text-sm break-words">{selectedSong}</div>
+              {isFreeRequest ? (
+                <div className="space-y-2">
+                  <Label htmlFor="freeSong" className="text-gray-300">Canzone richiesta *</Label>
+                  <Input
+                    id="freeSong"
+                    maxLength={200}
+                    placeholder="Artista - Titolo"
+                    value={selectedSong || ""}
+                    onChange={(e) => setSelectedSong(e.target.value)}
+                    className="bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
+                  />
+                  <p className="text-xs text-gray-500">
+                    💡 Questa è una richiesta libera: il DJ potrebbe non avere la base della canzone, quindi non è garantito che venga accettata
+                  </p>
+                </div>
+              ) : (
+                <div className="p-4 bg-purple-900/30 border border-purple-700/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Music className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-gray-400 mb-1">Canzone Selezionata</div>
+                      <div className="font-medium text-white text-sm break-words">{selectedSong}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="userName" className="text-gray-300">Nome Utente *</Label>
@@ -609,6 +709,18 @@ const handleSendMessage = async () => {
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="notes" className="text-gray-300">Note per il DJ (opzionale)</Label>
+                <Input
+                  id="notes"
+                  maxLength={500}
+                  placeholder="Es: Tavolo 5, dedica per un compleanno..."
+                  value={bookingNotes}
+                  onChange={(e) => setBookingNotes(e.target.value)}
+                  className="bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
+                />
+              </div>
+
               <div className="flex gap-3 justify-end pt-4">
                 <Button
                   variant="ghost"
@@ -617,6 +729,8 @@ const handleSendMessage = async () => {
                     setSelectedSong(null);
                     setSelectedKey("0");
                     setBookingUserName("");
+                    setBookingNotes("");
+                    setIsFreeRequest(false);
                   }}
                   className="text-gray-300 hover:text-white hover:bg-gray-800/50"
                 >
@@ -624,7 +738,7 @@ const handleSendMessage = async () => {
                 </Button>
                 <Button
                   onClick={confirmBooking}
-                  disabled={!bookingUserName.trim()}
+                  disabled={!bookingUserName.trim() || (isFreeRequest && !selectedSong?.trim())}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
                 >
                   ✅ Conferma Prenotazione
@@ -695,12 +809,14 @@ const handleSendMessage = async () => {
           {/* Input */}
           <div className="border-t border-purple-800/30 p-4 bg-gray-900/50 rounded-b-xl">
             <div className="flex gap-3">
+              
+              <span className="text-2xl select-none">👉</span>
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Cerca canzone o artista..."
-                className="flex-1 bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500 focus:border-purple-600"
+                placeholder="Scrivi canzone o l'artista..."
+                className="w-full bg-gray-950 text-white placeholder:text-gray-400 border-none focus-visible:ring-1 focus-visible:ring-pink-500/50 focus-visible:ring-offset-0"
               />
               <Button
                 onClick={handleSendMessage}
@@ -710,9 +826,6 @@ const handleSendMessage = async () => {
                 <Send className="w-5 h-5" />
               </Button>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              💡 Scrivi il titolo, l'artista, oppure "mie prenotazioni" o "aiuto"
-            </p>
           </div>
         </Card>
 

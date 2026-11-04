@@ -361,11 +361,23 @@ export default function CatalogSection() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold mb-2 text-white">Catalogo Canzoni</h2>
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <h2 className="text-3xl font-bold text-white">Catalogo Canzoni</h2>
+            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-orange-900/40 border border-orange-700/50 text-orange-300">
+              Facoltativo
+            </span>
+          </div>
           <p className="text-gray-400">Gestisci e configura il tuo catalogo</p>
+          <p className="text-sm text-gray-500 mt-1 max-w-2xl">
+            Se usi una piattaforma con le canzoni incluse puoi non caricare nulla: i clienti scrivono la canzone che vogliono e la ricevi in Prenotazioni.
+          </p>
         </div>
       </div>
       
+      <p className="text-sm text-gray-400 -mb-2">
+        Possiedi le tue basi karaoke e vuoi caricare il catalogo? Hai tre modi differenti per farlo
+      </p>
+
       <div className="grid md:grid-cols-3 gap-4">
         <div className="border-2 border-cyan-700/30 bg-cyan-900/10 backdrop-blur-sm rounded-xl p-5">
           <div className="flex items-start gap-4 mb-4">
@@ -387,8 +399,8 @@ export default function CatalogSection() {
           </Button>
         </div>
 
-        <div className="border-2 border-purple-800/30 bg-purple-900/10 backdrop-blur-sm rounded-xl p-5">
-          <div className="flex items-start gap-4 mb-4">
+        <div className="border-2 border-purple-800/30 bg-purple-900/10 backdrop-blur-sm rounded-xl p-5 flex flex-col justify-between h-full">
+          <div className="flex items-start gap-4 mb-6">
             <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
               <Upload className="w-6 h-6 text-purple-400" />
             </div>
@@ -397,18 +409,21 @@ export default function CatalogSection() {
               <div className="text-sm text-purple-400/80">Carica un file Excel con le tue canzoni</div>
             </div>
           </div>
+
+          {/* Il pulsante rimarrà ancorato al fondo grazie al layout flex del padre */}
           <Button 
             onClick={() => setShowImportDialog(true)}
             size="sm"
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 mt-auto"
           >
             <Upload className="w-4 h-4 mr-2" />
             Importa
           </Button>
         </div>
 
-        <div className="border-2 border-gray-700/30 bg-gray-800/30 backdrop-blur-sm rounded-xl p-5">
-          <div className="flex items-start gap-4 mb-4">
+        <div className="border-2 border-gray-700/30 bg-gray-800/30 backdrop-blur-sm rounded-xl p-5 flex flex-col justify-between h-full">
+          {/* Aumentato mb-4 a mb-6 per garantire una distanza minima di sicurezza su schermi piccoli */}
+          <div className="flex items-start gap-4 mb-6">
             <div className="w-12 h-12 bg-gray-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
               <Plus className="w-6 h-6 text-gray-400" />
             </div>
@@ -417,16 +432,19 @@ export default function CatalogSection() {
               <div className="text-sm text-gray-400/80">Inserisci una canzone manualmente</div>
             </div>
           </div>
+          
+          {/* Aggiunto mt-auto per calamitare il pulsante sul fondo */}
           <Button 
             onClick={() => setShowAddSongDialog(true)}
             size="sm"
             variant="outline"
-            className="w-full border-gray-600/20 bg-gray-600/20 text-gray-300 hover:text-white hover:bg-gray-800/50"
+            className="w-full border-gray-600/20 bg-gray-600/20 text-gray-300 hover:text-white hover:bg-gray-800/50 mt-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             Aggiungi
           </Button>
         </div>
+
       </div>
 
       {/* Add Song Dialog */}
@@ -658,15 +676,19 @@ export default function CatalogSection() {
         </DialogContent>
       </Dialog>
 
-      {songs.length === 0 && !searchQuery ? (
+      {loading && songs.length === 0 && !searchQuery ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+        </div>
+      ) : songs.length === 0 && !searchQuery ? (
         <Card className="border-purple-800/30 bg-gray-800/50 backdrop-blur-sm">
           <CardContent className="p-12 text-center">
             <Music className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              Nessun catalogo o canzone aggiunta
+              Nessun catalogo caricato
             </h3>
-            <p className="text-gray-400 mb-6">
-              Inizia caricando il tuo primo catalogo
+            <p className="text-gray-400 max-w-xl mx-auto">
+              Senza catalogo i clienti scrivono la canzone che vogliono cantare e tu la cerchi nella tua piattaforma. Se invece, possiedi le tue basi karaoke e preferisci che i tuoi clienti scelgano cosa cantare dal tuo catalogo, carica i titoli tuoi brani con uno dei tre metodi qui sopra.
             </p>
           </CardContent>
         </Card>
@@ -683,6 +705,9 @@ export default function CatalogSection() {
                   <div className="text-sm text-gray-400">{searchQuery ? "Risultati Trovati" : "Brani Totali nel Catalogo"}</div>
                 </div>
               </div>
+              <p className="mt-4 text-xs text-gray-400">
+                Vuoi accettare anche canzoni che non sono nel catalogo? Attiva “Abilita richieste libere” in Impostazioni.
+              </p>
             </CardContent>
           </Card>
 

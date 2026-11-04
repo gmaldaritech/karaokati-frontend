@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, User, Mail, Phone, Lock, Save, Trash2, AlertTriangle, Loader2, QrCode, Copy } from "lucide-react";
+import { Users, User, Mail, Phone, Lock, Save, Trash2, AlertTriangle, Loader2, QrCode, Copy, Music } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 import { toast } from "sonner";
 import { apiClient } from "@/api/apiClient";
@@ -17,7 +17,8 @@ export default function SettingsSection() {
     stage_name: "",
     email: "",
     phone: "",
-    max_bookings_per_user: 999
+    max_bookings_per_user: 999,
+    allow_free_requests: true
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -36,6 +37,12 @@ export default function SettingsSection() {
   const [showDeleteCatalogDialog, setShowDeleteCatalogDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false); // ← AGGIUNGI QUESTO STATE
 
+  // null = ancora in caricamento
+  const [catalogCount, setCatalogCount] = useState(null);
+  const hasCatalog = catalogCount !== null && catalogCount > 0;
+  // Senza catalogo le richieste libere sono sempre attive
+  const freeRequestsEnabled = hasCatalog ? settings.allow_free_requests : true;
+
   // Load user data on component mount
   useEffect(() => {
     if (user) {
@@ -44,10 +51,24 @@ export default function SettingsSection() {
         stage_name: user.stage_name || "",
         email: user.email || "",
         phone: user.phone || "",
-        max_bookings_per_user: user.max_bookings_per_user || 999
+        max_bookings_per_user: user.max_bookings_per_user || 999,
+        allow_free_requests: user.allow_free_requests ?? true
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    const loadCatalogCount = async () => {
+      try {
+        const response = await apiClient.getSongs({ page: 1, per_page: 1 });
+        setCatalogCount(response.total || 0);
+      } catch (error) {
+        console.error('Error loading catalog count:', error);
+        setCatalogCount(0);
+      }
+    };
+    loadCatalogCount();
+  }, []);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -105,7 +126,8 @@ export default function SettingsSection() {
         stage_name: settings.stage_name,
         // phone: settings.phone,
         phone: settings.phone?.trim() || null,
-        max_bookings_per_user: settings.max_bookings_per_user
+        max_bookings_per_user: settings.max_bookings_per_user,
+        allow_free_requests: freeRequestsEnabled
       });
       
       toast.success("Profilo aggiornato con successo");
@@ -203,6 +225,7 @@ export default function SettingsSection() {
   const handleDeleteCatalog = async () => {
     try {
       await apiClient.clearCatalog();
+      setCatalogCount(0);
       setShowDeleteCatalogDialog(false);
       toast.success("Catalogo eliminato completamente");
     } catch (error) {
@@ -387,7 +410,43 @@ export default function SettingsSection() {
                 </div>
               </div>
               <p className="text-sm text-gray-400">
-                Numero massimo di prenotazioni che ogni utente può fare per sessione
+                Numero massimo di canzoni che una persona può prenotare dal proprio smartphone durante la serata
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-gray-300">
+                <Music className="w-4 h-4 text-purple-400" />
+                Abilita richieste libere
+              </Label>
+              <div className="flex items-center justify-between gap-4 px-3 py-3 bg-gray-900/50 border border-purple-800/50 rounded-md">
+                <p className="text-sm text-gray-300">
+                  Consenti agli utenti di richiedere anche canzoni non presenti nel catalogo
+                </p>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={freeRequestsEnabled}
+                  disabled={!hasCatalog}
+                  onClick={() =>
+                    setSettings({ ...settings, allow_free_requests: !settings.allow_free_requests })
+                  }
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500
+                    ${freeRequestsEnabled ? "bg-purple-600" : "bg-gray-600"}
+                    ${!hasCatalog ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200
+                      ${freeRequestsEnabled ? "translate-x-6" : "translate-x-1"}`}
+                  />
+                </button>
+              </div>
+              <p className="text-sm text-gray-400">
+                {catalogCount === null
+                  ? "Caricamento..."
+                  : hasCatalog
+                    ? "Se disattivata, gli utenti potranno richiedere solo le canzoni presenti nel tuo catalogo"
+                    : "Non hai un catalogo: le richieste libere sono sempre attive e non modificabili"}
               </p>
             </div>
 
