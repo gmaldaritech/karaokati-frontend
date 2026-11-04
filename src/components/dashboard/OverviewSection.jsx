@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { generateQRPrintHTML } from "@/components/QRCodePrintTemplate.jsx";
 
 
-export default function OverviewSection(onSectionChange) {
+export default function OverviewSection({onSectionChange}) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -254,13 +254,14 @@ export default function OverviewSection(onSectionChange) {
               <p className="text-xs text-gray-400">Aggiungi il locale dove fai le serate</p>
             </div>
 
-            <div className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl">
+            <div className="p-4 bg-gray-800/50 border border-dashed border-orange-700/50 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 bg-orange-900/50 border border-orange-700/50 rounded-full flex items-center justify-center text-xs font-bold text-orange-400">2</div>
                 <Music className="w-4 h-4 text-orange-400" />
+                <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full bg-orange-900/40 border border-orange-700/50 text-orange-300">Facoltativo</span>
               </div>
-              <h4 className="font-semibold text-white text-sm mb-1">Carica il Catalogo</h4>
-              <p className="text-xs text-gray-400">Importa o aggiungi le tue canzoni</p>
+              <h4 className="font-semibold text-white text-sm mb-1">Catalogo (facoltativo)</h4>
+              <p className="text-xs text-gray-400">Carica il tuo catalogo se possiedi le tue basi, oppure salta questo passaggio se utilizzi una piattaforma con musica inclusa</p>
             </div>
 
             <div className="p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl">
@@ -278,9 +279,13 @@ export default function OverviewSection(onSectionChange) {
                 <Calendar className="w-4 h-4 text-pink-400" />
               </div>
               <h4 className="font-semibold text-white text-sm mb-1">Gestisci Prenotazioni</h4>
-              <p className="text-xs text-gray-400">Accetta le richieste dei clienti</p>
+              <p className="text-xs text-gray-400">Accetta le richieste, anche quelle fuori catalogo</p>
             </div>
           </div>
+
+          <p className="mt-4 text-xs text-gray-400 bg-gray-900/40 border border-purple-800/30 rounded-lg px-3 py-2">
+            💡 Non hai un catalogo? Salta il passo 2: i clienti scrivono la canzone che vogliono e la trovi tra le prenotazioni, con l'etichetta “Richiesta libera”.
+          </p>
         </CardContent>
       </Card>
 
@@ -292,14 +297,23 @@ export default function OverviewSection(onSectionChange) {
                 <Music className="w-8 h-8 text-white" />
               </div>
               <div>
-                <div className="text-3xl font-bold text-white mb-1">
-                  {loading ? (
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                  ) : (
-                    dashboardData.totalSongs
-                  )}
-                </div>
-                <div className="text-sm text-gray-400">Brani nel Catalogo</div>
+                {!loading && dashboardData.totalSongs === 0 ? (
+                  <>
+                    <div className="text-lg font-bold text-white mb-1">Nessun catalogo</div>
+                    <div className="text-sm text-gray-400">Facoltativo: le prenotazioni arrivano come richieste libere</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-3xl font-bold text-white mb-1">
+                      {loading ? (
+                        <Loader2 className="w-8 h-8 animate-spin" />
+                      ) : (
+                        dashboardData.totalSongs
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-400">Brani nel Catalogo</div>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -441,7 +455,7 @@ export default function OverviewSection(onSectionChange) {
                 <div>
                   <h4 className="font-semibold mb-1 text-white">Chatbot Interattivo</h4>
                   <p className="text-sm text-gray-400">
-                    Si apre una chat dove possono cercare e prenotare le canzoni
+                    Si apre una chat dove possono cercare e prenotare le canzoni del tuo catalogo oppure, se non ne hai uno, scrivere la canzone che vogliono cantare
                   </p>
                 </div>
               </div>
@@ -453,15 +467,15 @@ export default function OverviewSection(onSectionChange) {
                 <div>
                   <h4 className="font-semibold mb-1 text-white">Ricevi le Prenotazioni</h4>
                   <p className="text-sm text-gray-400">
-                    Vedi tutte le richieste in tempo reale nella dashboard
+                    Vedi tutte le richieste in tempo reale nella dashboard. Quelle fuori catalogo hanno l'etichetta “Richiesta libera”
                   </p>
                 </div>
               </div>
 
               <div className="p-4 bg-purple-900/30 border border-purple-800/30 rounded-lg mt-6">
                 <div className="text-sm font-medium text-purple-300 mb-2">💡 Consiglio</div>
-                <div className="text-sm text-purple-400">
-                  Posiziona il QR code in un punto visibile e ben illuminato per facilitare la scansione
+                <div className="text-sm text-purple-400 space-y-2">
+                  <p>Posiziona il QR code in un punto visibile e ben illuminato per facilitare la scansione</p>
                 </div>
               </div>
             </div>

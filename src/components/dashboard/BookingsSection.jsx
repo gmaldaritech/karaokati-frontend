@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, XCircle, Music, Plus, Search, X, ChevronLeft, ChevronRight, MapPin, Trash2, Download, Loader2 } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Music, Plus, Search, X, ChevronLeft, ChevronRight, MapPin, Trash2, Download, Loader2, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 import {
   Dialog,
   DialogContent,
@@ -33,7 +35,8 @@ export default function BookingsSection() {
   const [manualBookingData, setManualBookingData] = useState({
     userName: "",
     song: "",
-    key: "0"
+    key: "0",
+    notes: ""
   });
 
   const [songSearch, setSongSearch] = useState("");
@@ -42,6 +45,13 @@ export default function BookingsSection() {
   // 🆕 Nuovi stati per ricerca ottimizzata
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+
+  // Titolo scritto a mano (inserimento libero)
+  const [freeSong, setFreeSong] = useState("");
+
+  // null = ancora in caricamento
+  const [catalogCount, setCatalogCount] = useState(null);
+  const noCatalog = catalogCount === 0;
 
   // 🆕 AGGIUNGI questi ref per polling
 const pollingIntervalRef = useRef(null);
@@ -66,8 +76,10 @@ const startSilentPolling = useCallback(() => {
           time: formatTimeAgo(booking.created_at),
           status: booking.status,
           key: booking.key,
+          notes: booking.notes,
           venue: booking.venue_name,
-          sessionId: booking.session_id
+          sessionId: booking.session_id,
+          isFreeRequest: booking.is_free_request
         }));
 
         setBookings(transformedBookings);
@@ -155,6 +167,22 @@ useEffect(() => {
     searchSongs(debouncedSearch);
   }, [debouncedSearch]);
 
+  const loadCatalogCount = async () => {
+    try {
+      const response = await apiClient.getSongs({ page: 1, per_page: 1 });
+      setCatalogCount(response.total || 0);
+    } catch (error) {
+      console.error('Error loading catalog count:', error);
+    }
+  };
+
+  // Ricontrolla il catalogo ogni volta che si apre la prenotazione manuale
+  useEffect(() => {
+    if (showManualBooking) {
+      loadCatalogCount();
+    }
+  }, [showManualBooking]);
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -211,8 +239,10 @@ useEffect(() => {
         time: formatTimeAgo(booking.created_at),
         status: booking.status,
         key: booking.key,
+        notes: booking.notes,
         venue: booking.venue_name,
-        sessionId: booking.session_id
+        sessionId: booking.session_id,
+        isFreeRequest: booking.is_free_request
       }));
 
       setBookings(transformedBookings);
@@ -280,7 +310,9 @@ useEffect(() => {
   };
 
   const handleManualBooking = async () => {
-    if (!manualBookingData.userName || !manualBookingData.song) {
+    const song = manualBookingData.song || freeSong.trim();
+    const isFree = !manualBookingData.song;
+    if (!manualBookingData.userName || !song) {
       return;
     }
 
@@ -288,9 +320,11 @@ useEffect(() => {
       setSubmitting(true);
       const newBooking = await apiClient.createBooking({
         user_name: manualBookingData.userName,
-        song: manualBookingData.song,
+        song: song,
         key: manualBookingData.key,
-        venue_id: activeVenue.id
+        notes: manualBookingData.notes?.trim() || null,
+        venue_id: activeVenue.id,
+        is_free_request: isFree
       });
 
       // Add to local state
@@ -301,12 +335,15 @@ useEffect(() => {
         time: "Ora",
         status: newBooking.status,
         key: newBooking.key,
+        notes: newBooking.notes ?? manualBookingData.notes ?? "",
         venue: activeVenue.name,
-        sessionId: null
+        sessionId: null,
+        isFreeRequest: newBooking.is_free_request ?? isFree
       };
 
       setBookings([...bookings, transformedBooking]);
-      setManualBookingData({ userName: "", song: "", key: "0" });
+      setManualBookingData({ userName: "", song: "", key: "0", notes: "" });
+      setFreeSong("");
       setShowManualBooking(false);
       setSongSearch("");
       setSearchResults([]);
@@ -348,10 +385,26 @@ useEffect(() => {
 
   const pendingBookings = venueBookings.filter(b => b.status === "pending");
   const allVenueBookings = [...venueBookings].sort((a, b) => {
-    const timeA = a.time === "Ora" ? 0 : parseInt(a.time);
-    const timeB = b.time === "Ora" ? 0 : parseInt(b.time);
-    return timeB - timeA;
-  });
+  return a.id - b.id;
+});
+
+    // Canzone scelta dal catalogo oppure scritta a mano
+  const effectiveSong = manualBookingData.song || freeSong.trim();
+
+  const manualSongInput = (
+    <>
+      <Input
+        placeholder="Scrivi Titolo - Artista (es: Albachiara - Vasco Rossi)..."
+        value={freeSong}
+        onChange={(e) => setFreeSong(e.target.value)}
+        maxLength={200}
+        className="bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
+      />
+      <p className="text-xs text-gray-500 mt-1.5 pl-1">
+        💡 Scrivi il titolo e l'artista della canzone, poi conferma la prenotazione.
+      </p>
+    </>
+  );
 
   if (loading) {
     return (
@@ -432,95 +485,113 @@ useEffect(() => {
       </div>
 
       {/* Manual Booking Dialog */}
-      <Dialog open={showManualBooking} onOpenChange={setShowManualBooking}>
+      <Dialog open={showManualBooking} onOpenChange={(open) => {setShowManualBooking(open);
+        if (!open) setFreeSong("");}}>
         <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-2xl overflow-y-auto max-h-[80vh]">
           <DialogHeader>
             <DialogTitle className="text-2xl">Prenotazione Manuale</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 mt-4">
+            
             <div className="space-y-2">
               <Label htmlFor="userName" className="text-gray-300">Nome Utente</Label>
               <Input
                 id="userName"
-                placeholder="Inserisci il nome..."
+                placeholder="Inserisci il nome della persona..."
                 value={manualBookingData.userName}
                 onChange={(e) => setManualBookingData({ ...manualBookingData, userName: e.target.value })}
                 className="bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="songSearch" className="text-gray-300">Cerca Canzone</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <Input
-                  id="songSearch"
-                  placeholder="Cerca nel catalogo..."
-                  value={songSearch}
-                  onChange={(e) => setSongSearch(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
-                />
-              </div>
-            </div>
+                        <div className="space-y-2">
+              <Label className="text-gray-300">Scelta Canzone</Label>
 
-            {/* 🆕 Ricerca ottimizzata con API real-time */}
-            {songSearch && (
-              <div className="space-y-2">
-                <Label className="text-gray-300">Seleziona Canzone</Label>
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  {searchLoading ? (
-                    <div className="p-8 text-center">
-                      <Loader2 className="w-5 h-5 animate-spin text-purple-400 mx-auto" />
-                      <p className="text-gray-400 mt-2">Cercando...</p>
-                    </div>
-                  ) : (
-                    searchResults.map((song, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => {
-                          setManualBookingData({ ...manualBookingData, song });
-                          setSongSearch("");
-                          setSearchResults([]);
-                        }}
-                        className="p-3 bg-gray-800/50 border border-purple-800/30 rounded-lg hover:border-purple-600/50 cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Music className="w-5 h-5 text-purple-400" />
-                          <span className="text-gray-300 text-sm">{song}</span>
-                        </div>
+              {manualBookingData.song ? (
+                <div className="p-4 bg-purple-900/20 border border-purple-700/50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Music className="w-5 h-5 text-purple-400" />
+                      <div>
+                        <div className="text-xs text-purple-400 font-medium">Brano Confermato</div>
+                        <div className="font-medium text-white text-sm">{manualBookingData.song}</div>
                       </div>
-                    ))
-                  )}
-                  {searchResults.length === 0 && songSearch && !searchLoading && (
-                    <div className="p-8 text-center text-gray-500">
-                      Nessuna canzone trovata per "{songSearch}"
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {manualBookingData.song && !songSearch && (
-              <div className="p-4 bg-purple-900/30 border border-purple-700/50 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Music className="w-5 h-5 text-purple-400" />
-                    <div>
-                      <div className="text-sm text-gray-400">Canzone Selezionata</div>
-                      <div className="font-medium text-white text-sm">{manualBookingData.song}</div>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setManualBookingData({ ...manualBookingData, song: "" })}
+                      className="text-gray-400 hover:text-red-400 hover:bg-transparent"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setManualBookingData({ ...manualBookingData, song: "" })}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
                 </div>
-              </div>
-            )}
+              ) : noCatalog ? (
+                manualSongInput
+              ) : (
+                <Tabs defaultValue="catalog" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 border border-purple-800/20 p-1">
+                    <TabsTrigger value="catalog" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 text-sm">
+                      🔍 Cerca nel Catalogo
+                    </TabsTrigger>
+                    <TabsTrigger value="manual" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400 text-sm">
+                      ✍️ Inserimento Libero
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="catalog" className="space-y-4 mt-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <Input
+                        id="songSearch"
+                        placeholder="Digita titolo o artista..."
+                        value={songSearch}
+                        onChange={(e) => setSongSearch(e.target.value)}
+                        className="pl-10 bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
+                      />
+                    </div>
+
+                    {songSearch && (
+                      <div className="max-h-52 overflow-y-auto space-y-2 border border-purple-800/20 rounded-lg p-2 bg-gray-950/40">
+                        {searchLoading ? (
+                          <div className="p-6 text-center">
+                            <Loader2 className="w-5 h-5 animate-spin text-purple-400 mx-auto" />
+                            <p className="text-gray-400 mt-2 text-xs">Cercando nel database...</p>
+                          </div>
+                        ) : (
+                          searchResults.map((song, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => {
+                                setManualBookingData({ ...manualBookingData, song });
+                                setSongSearch("");
+                                setSearchResults([]);
+                              }}
+                              className="p-2.5 bg-gray-800/30 border border-purple-800/20 rounded-md hover:border-purple-500 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Music className="w-4 h-4 text-purple-400" />
+                                <span className="text-gray-300 text-sm">{song}</span>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                        {searchResults.length === 0 && !searchLoading && (
+                          <div className="p-6 text-center text-gray-500 text-xs">
+                            Nessun brano trovato per "{songSearch}"
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="manual" className="mt-3">
+                    {manualSongInput}
+                  </TabsContent>
+                </Tabs>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="key" className="text-gray-300">Tonalità</Label>
@@ -541,12 +612,24 @@ useEffect(() => {
               </Select>
             </div>
 
-            <div className="flex gap-3 justify-end pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="text-gray-300">Note Speciali (Opzionale)</Label>
+              <Input
+                id="notes"
+                placeholder="Es: Tavolo 5, Dedica a compleanno, Versione acustica..."
+                value={manualBookingData.notes || ""}
+                onChange={(e) => setManualBookingData({ ...manualBookingData, notes: e.target.value })}
+                className="bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 border-t border-purple-800/20">
               <Button
                 variant="ghost"
                 onClick={() => {
                   setShowManualBooking(false);
-                  setManualBookingData({ userName: "", song: "", key: "0" });
+                  setManualBookingData({ userName: "", song: "", key: "0", notes: "" });
+                  setFreeSong("");
                   setSongSearch("");
                   setSearchResults([]);
                 }}
@@ -556,7 +639,8 @@ useEffect(() => {
               </Button>
               <Button
                 onClick={handleManualBooking}
-                disabled={!manualBookingData.userName || !manualBookingData.song || submitting}
+                //disabled={!manualBookingData.userName || !manualBookingData.song || submitting}
+                disabled={!manualBookingData.userName || !effectiveSong || submitting}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -568,26 +652,10 @@ useEffect(() => {
       </Dialog>
 
       <Card className="border-purple-800/30 bg-gray-800/50 backdrop-blur-sm">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-white">Tutte le Prenotazioni</CardTitle>
-            {allVenueBookings.filter(b => b.status === "accepted" || b.status === "pending").length > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleDownloadBookings}
-                className="text-purple-400 hover:text-purple-300 hover:bg-purple-900/30"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Scarica Prenotazioni
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="space-y-3">
             {allVenueBookings.length === 0 ? (
-              // 🆕 CARD PER NESSUNA PRENOTAZIONE
+              // CARD PER NESSUNA PRENOTAZIONE
               <div className="p-8 text-center">
                 <Music className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-white mb-2">
@@ -607,60 +675,101 @@ useEffect(() => {
             ) : (
               allVenueBookings.map((booking) => (
                 <div
-                key={booking.id}
-                className={`p-4 bg-gray-900/30 rounded-lg border transition-colors ${
-                  booking.status === "pending" 
-                    ? "border-yellow-700/50 hover:border-yellow-600/70" 
-                    : "border-purple-800/20 hover:border-purple-600/50"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-purple-900/50 border border-purple-700/50 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-purple-400">
-                        {booking.userName[0]}
-                      </span>
+                  key={booking.id}
+                  className={`relative overflow-hidden p-4 bg-gray-900/30 rounded-lg border transition-colors ${
+                    booking.isFreeRequest ? "pt-7" : ""
+                    } ${
+                    booking.status === "pending" 
+                      ? "border-yellow-700/50 hover:border-yellow-600/70" 
+                      : "border-purple-800/20 hover:border-purple-600/50"
+                  }`}
+                >
+                  {booking.isFreeRequest && (
+                    <div className="absolute top-0 left-0 bg-pink-900/40 text-pink-300 text-[11px] font-medium px-2.5 py-0.5 rounded-br-lg border-b border-r border-pink-700/40">
+                      ✍️ Richiesta libera
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-8 mb-1 flex-wrap">
-                        <span className="font-medium text-white">{booking.userName}</span>
-                        {getStatusBadge(booking.status)}
-                        {booking.key && (
-                          <Badge variant="outline" className="border-purple-700/50 text-purple-300">
-                            Tonalità: {booking.key === "0" ? "Originale" : booking.key}
-                          </Badge>
-                        )}
+                  )}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 bg-purple-900/50 border border-purple-700/50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-purple-400">
+                          {booking.userName[0]}
+                        </span>
                       </div>
-                      <div className="text-sm text-gray-400 truncate">{booking.song}</div>
-                      <div className="text-xs text-gray-500 mt-1">{booking.time}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-8 mb-1 flex-wrap">
+                          <span className="font-medium text-white">{booking.userName}</span>
+                          {getStatusBadge(booking.status)}
+                          {booking.key && (
+                            <Badge variant="outline" className="border-purple-700/50 text-purple-300">
+                              Tonalità: {booking.key === "0" ? "Originale" : booking.key}
+                            </Badge>
+                          )}
+                        </div>
+
+                        <div className="text-sm text-gray-400 truncate">{booking.song}</div>
+                        {booking.notes && (
+                          <div className="mt-1.5 flex items-start gap-1.5 text-xs bg-purple-950/30 border border-purple-900/30 p-2 rounded md:max-w-[90%]">
+                            <span className="text-purple-400 font-semibold select-none">Note:</span>
+                            <p className="text-gray-400 italic break-words flex-1">{booking.notes}</p>
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-500 mt-1">{booking.time}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    {booking.status === "pending" && (
+
+                    <div className="flex gap-2 flex-shrink-0 items-center">
+                      {booking.status === "pending" && (
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                          onClick={() => handleAccept(booking.id)}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Accetta
+                        </Button>
+                      )}
+                      
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
-                        onClick={() => handleAccept(booking.id)}
+                        variant="ghost"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
+                        onClick={() => handleReject(booking.id)}
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Accetta
+                        <Trash2 className="w-4 h-4" />
                       </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
-                      onClick={() => handleReject(booking.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="border-purple-700/40 text-purple-300 hover:bg-purple-900/40 hover:text-white"
+                        title="Copia titolo canzone"
+                        onClick={() => {
+                          const textToCopy = booking.song;
+                          if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(textToCopy);
+                          } else {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = textToCopy;
+                            textArea.style.position = "fixed";
+                            textArea.style.opacity = "0";
+                            document.body.appendChild(textArea);
+                            textArea.focus();
+                            textArea.select();
+                            try { document.execCommand("copy"); } catch (err) {}
+                            document.body.removeChild(textArea);
+                          }
+                        }}
+                      >
+                        <Copy className="w-4 h-4 mr-1.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
               ))
             )}
           </div>
         </CardContent>
+
       </Card>
     </div>
   );
