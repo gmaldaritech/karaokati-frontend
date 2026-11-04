@@ -14,7 +14,7 @@ npm run dev
 ## Building the app
 
 ```bash
-npm run build
+npm run dev -- --host
 ```
 
 For more information and support, please contact Base44 support at app@base44.com.
