@@ -292,6 +292,19 @@ async request(endpoint, options = {}) {
     return response.blob();
   }
 
+  async downloadCatalog() {
+    const response = await fetch(`${this.baseURL}/songs/export`, {
+      headers: this.getHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Impossibile scaricare il catalogo');
+    }
+
+    return response.blob();
+  }
+
   // ==================== BOOKINGS ENDPOINTS ====================
 
   async getBookings(venueId) {
@@ -308,6 +321,19 @@ async request(endpoint, options = {}) {
 
   async rejectBooking(bookingId) {
     return this.post(`/bookings/${bookingId}/reject`);
+  }
+
+  async downloadBookings(venueId) {
+    const response = await fetch(`${this.baseURL}/bookings/export?venue_id=${venueId}`, {
+      headers: this.getHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Impossibile scaricare le prenotazioni');
+    }
+
+    return response.blob();
   }
 
   async deleteBooking(bookingId) {

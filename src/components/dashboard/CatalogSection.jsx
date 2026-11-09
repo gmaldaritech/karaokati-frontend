@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Music, Search, Upload, FolderOpen, Trash2, Edit2, ChevronLeft, ChevronRight, FileSpreadsheet, Sparkles, Plus, Loader2 } from "lucide-react";
+import { Music, Search, Upload, FolderOpen, Trash2, Edit2, ChevronLeft, ChevronRight, FileSpreadsheet, Sparkles, Plus, Loader2, Download } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,10 @@ export default function CatalogSection() {
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [showAddSongDialog, setShowAddSongDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showReplaceDialog, setShowReplaceDialog] = useState(false);
+  const [showImportModeDialog, setShowImportModeDialog] = useState(false);
+  const [pendingSongs, setPendingSongs] = useState(null);   // canzoni lette dall'Excel in attesa di scelta
+  const [catalogSize, setCatalogSize] = useState(0);        // dimensione reale del catalogo (indipendente dalla ricerca)
+  const [downloading, setDownloading] = useState(false);
   const [songToDelete, setSongToDelete] = useState(null);
   const [newSong, setNewSong] = useState("");
   const [songs, setSongs] = useState([]);
@@ -61,6 +64,7 @@ export default function CatalogSection() {
 
       setSongs(response.songs);
       setTotalSongs(response.total);
+      if (!searchQuery) setCatalogSize(response.total);
     } catch (error) {
       console.error('Error loading songs:', error);
       toast.error("Impossibile caricare il catalogo")
@@ -87,6 +91,24 @@ export default function CatalogSection() {
       toast.error("Impossibile aggiungere la canzone")
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDownloadCatalog = async () => {
+    try {
+      setDownloading(true);
+      const blob = await apiClient.downloadCatalog();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `catalogo_${new Date().toLocaleDateString("it-IT").replace(/\//g, "-")}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast.success("Catalogo scaricato");
+    } catch (error) {
+      console.error('Error downloading catalog:', error);
+      toast.error("Impossibile scaricare il catalogo");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -151,41 +173,69 @@ export default function CatalogSection() {
       return;
     }
 
-    // Se il catalogo ha già canzoni, chiedi conferma
-    if (totalSongs > 0) {
-      setShowReplaceDialog(true);
-      return;
-    }
-
-    // Procedi direttamente se catalogo vuoto
-    await proceedWithImport();
-  };
-
-    const proceedWithImport = async () => {
     try {
       setImporting(true);
       const data = await readExcelFile(selectedFile);
-      
+
       if (data.length === 0) {
         toast.error("Il file Excel è vuoto o non contiene dati validi");
         return;
       }
 
-      // Cancella il catalogo esistente se necessario
-      if (totalSongs > 0) {
+      // Catalogo già presente → chiedi come procedere
+      if (catalogSize > 0) {
+        setPendingSongs(data);
+        setShowImportModeDialog(true);
+        return;
+      }
+
+      // Catalogo vuoto → importa direttamente
+      await proceedWithImport("replace", data);
+    } catch (error) {
+      console.error('Error importing Excel:', error);
+      if (error.code === 'MULTI_COLUMN') {
+        toast.error(
+          "Il file non è formattato correttamente: deve contenere una sola colonna. Controlla le istruzioni 'Come funziona' qui sopra e riprova.",
+          { duration: 8000 }
+        );
+      } else {
+        toast.error(error.message || "Impossibile importare il file Excel");
+      }
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // mode: "replace" (sovrascrive) | "append" (aggiunge al catalogo esistente)
+  const proceedWithImport = async (mode, songsToImport) => {
+    try {
+      setImporting(true);
+
+      if (mode === "replace" && catalogSize > 0) {
         await apiClient.clearCatalog();
       }
 
-      await apiClient.bulkAddSongs({ songs: data });
-      
+      const result = await apiClient.bulkAddSongs({ songs: songsToImport });
+
       setSelectedFile(null);
+      setPendingSongs(null);
       setShowImportDialog(false);
-      setShowReplaceDialog(false);
-      loadSongs();
-      toast.success("Canzoni importate con successo")
+      setShowImportModeDialog(false);
+      setCurrentPage(1);
+      await loadSongs();
+
+      if (mode === "append" && result?.skipped > 0) {
+        toast.success(`${result.count} canzoni aggiunte (${result.skipped} già presenti, ignorate)`);
+      } else {
+        toast.success(
+          mode === "append"
+            ? `${result?.count ?? songsToImport.length} canzoni aggiunte al catalogo`
+            : "Canzoni importate con successo"
+        );
+      }
     } catch (error) {
       console.error('Error importing Excel:', error);
-      toast.error("Impossibile importare il file Excel")
+      toast.error("Impossibile importare il file Excel");
     } finally {
       setImporting(false);
     }
@@ -330,6 +380,19 @@ export default function CatalogSection() {
             const workbook = window.XLSX.read(data, { type: 'array' });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = window.XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+            // 🚫 Più di una colonna con dati → file non valido
+            const hasExtraColumns = jsonData.some(row =>
+              Array.isArray(row) &&
+              row.slice(1).some(cell => cell !== undefined && cell !== null && String(cell).trim() !== '')
+            );
+
+            if (hasExtraColumns) {
+              const err = new Error('MULTI_COLUMN');
+              err.code = 'MULTI_COLUMN';
+              reject(err);
+              return;
+            }
             
             const songs = jsonData
               .slice(jsonData[0] && typeof jsonData[0][0] === 'string' && jsonData[0][0].toLowerCase().includes('titolo') ? 1 : 0)
@@ -359,7 +422,7 @@ export default function CatalogSection() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
             <h2 className="text-3xl font-bold text-white">Catalogo Canzoni</h2>
@@ -372,10 +435,26 @@ export default function CatalogSection() {
             Se usi una piattaforma con le canzoni incluse puoi non caricare nulla: i clienti scrivono la canzone che vogliono e la ricevi in Prenotazioni.
           </p>
         </div>
+
+        {catalogSize > 0 && (
+          <Button
+            onClick={handleDownloadCatalog}
+            disabled={downloading}
+            variant="ghost"
+            className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/50"
+          >
+            {downloading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-2" />
+            )}
+            Scarica Catalogo
+          </Button>
+        )}
       </div>
       
       <p className="text-sm text-gray-400 -mb-2">
-        Possiedi le tue basi karaoke e vuoi caricare il catalogo? Hai tre modi differenti per farlo
+                Possiedi le tue basi karaoke e vuoi caricare o aggiornare il tuo catalogo? Puoi usare uno di questi tre modi, anche per aggiungere nuovi brani a un catalogo già esistente
       </p>
 
       <div className="grid md:grid-cols-3 gap-4">
@@ -406,7 +485,7 @@ export default function CatalogSection() {
             </div>
             <div className="flex-1">
               <div className="text-base font-semibold text-purple-200 mb-1">Importa Massivamente</div>
-              <div className="text-sm text-purple-400/80">Carica un file Excel con le tue canzoni</div>
+              <div className="text-sm text-purple-400/80">Carica o aggiorna il catalogo con un file Excel</div>
             </div>
           </div>
 
@@ -532,6 +611,12 @@ export default function CatalogSection() {
                 </div>
               </div>
               
+              <div className="mt-3 p-3 bg-purple-900/40 border border-purple-700/50 rounded">
+                <p className="text-sm text-purple-200">
+                  🔄 <strong>Hai già un catalogo?</strong> Potrai scegliere se <strong>aggiungere</strong> i brani del file (utile per nuovi brani) oppure <strong>sovrascrivere</strong> tutto (utile se il file contiene l'intero catalogo, ad esempio generato dalla tua cartella).
+                </p>
+              </div>
+
               <div className="mt-3 p-3 bg-blue-900/30 border border-blue-700/50 rounded">
                 <p className="text-sm text-blue-300">
                   💡 <strong>Non hai un Excel?</strong> Usa "Genera Catalogo Automaticamente" per crearlo dalla tua cartella di file audio
@@ -628,7 +713,7 @@ export default function CatalogSection() {
           </li>
           <li className="flex items-start gap-3">
             <span className="bg-cyan-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">5</span>
-            <span><strong>Importa il catalogo:</strong> Una volta scaricato il catalogo utilizza il bottone <strong>"Importa Massivamente"</strong> per caricare il catalogo</span>
+            <span><strong>Importa il catalogo:</strong> Una volta scaricato il catalogo utilizza il bottone <strong>"Importa Massivamente"</strong>. Se hai già un catalogo, scegli <strong>"Sovrascrivi"</strong>: il file generato contiene tutti i brani presenti nella cartella, quindi sostituisce il catalogo precedente ed elimina eventuali brani rinominati o rimossi.</span>
           </li>
         </ol>
         
@@ -840,16 +925,55 @@ export default function CatalogSection() {
         variant="danger"
       />
 
-      {/* Conferma sostituzione catalogo */}
-      <ConfirmDialog
-        open={showReplaceDialog}
-        onOpenChange={setShowReplaceDialog}
-        title="Sostituisci Catalogo"
-        description={`Attenzione: hai già ${totalSongs} canzoni nel catalogo. L'importazione cancellerà tutto il catalogo esistente e lo sostituirà con le canzoni del file Excel. Vuoi continuare?`}
-        onConfirm={proceedWithImport}
-        confirmText="Sì, Sostituisci"
-        variant="danger"
-      />
+      {/* Scelta: sovrascrivere o aggiungere */}
+      <Dialog
+        open={showImportModeDialog}
+        onOpenChange={(open) => {
+          setShowImportModeDialog(open);
+          if (!open) setPendingSongs(null);
+        }}
+      >
+        <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Hai già un catalogo</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Nel catalogo ci sono già {catalogSize} canzoni e il file ne contiene {pendingSongs?.length ?? 0}. Cosa vuoi fare?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 mt-4">
+            <Button
+              onClick={() => proceedWithImport("append", pendingSongs)}
+              disabled={importing}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              {importing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Aggiungi al catalogo esistente
+            </Button>
+
+            <Button
+              onClick={() => proceedWithImport("replace", pendingSongs)}
+              disabled={importing}
+              variant="ghost"
+              className="w-full border border-red-800/50 text-red-400 hover:text-red-300 hover:bg-red-900/30"
+            >
+              Sovrascrivi (elimina il catalogo attuale)
+            </Button>
+
+            <Button
+              onClick={() => {
+                setShowImportModeDialog(false);
+                setPendingSongs(null);
+              }}
+              disabled={importing}
+              variant="ghost"
+              className="w-full text-gray-300 hover:text-white hover:bg-gray-800/50"
+            >
+              Annulla
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

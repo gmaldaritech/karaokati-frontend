@@ -356,18 +356,19 @@ useEffect(() => {
     }
   };
 
-  const handleDownloadBookings = () => {
-    const acceptedBookings = allVenueBookings.filter(b => b.status === "accepted");
-    const csvContent = "Nome,Canzone,Tonalità,Orario\n" + 
-      acceptedBookings.map(b => 
-        `"${b.userName}","${b.song}","${b.key === "0" ? "Originale" : b.key}","${b.time}"`
-      ).join("\n");
-    
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `prenotazioni_${activeVenue.name.replace(/\s+/g, "_")}_${new Date().toLocaleDateString("it-IT").replace(/\//g, "-")}.csv`;
-    link.click();
+  const handleDownloadBookings = async () => {
+    try {
+      const blob = await apiClient.downloadBookings(activeVenue.id);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `prenotazioni_${activeVenue.name.replace(/\s+/g, "_")}_${new Date().toLocaleDateString("it-IT").replace(/\//g, "-")}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast.success("Prenotazioni scaricate");
+    } catch (error) {
+      console.error("Error downloading bookings:", error);
+      toast.error("Impossibile scaricare le prenotazioni");
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -463,7 +464,17 @@ useEffect(() => {
             <span>Locale: <span className="font-semibold text-purple-400">{activeVenue?.name}</span></span>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
+          {venueBookings.length > 0 && (
+            <Button
+              onClick={handleDownloadBookings}
+              variant="ghost"
+              className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/50"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Scarica Prenotazioni
+            </Button>
+          )}
           {venueBookings.length > 0 && (
             <Button 
               onClick={() => setShowDeleteAllDialog(true)}
