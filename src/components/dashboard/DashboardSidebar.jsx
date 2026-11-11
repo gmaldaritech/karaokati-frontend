@@ -1,10 +1,13 @@
 import React from "react";
-import { Heart, Mic2, LayoutDashboard, MapPin, Music, ListOrdered, Settings, LogOut, Play } from "lucide-react";
+import { Heart, Mic2, LayoutDashboard, MapPin, Music, ListOrdered, Settings, LogOut, Play, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
-export default function DashboardSidebar({ activeSection, setActiveSection }) {
+export default function DashboardSidebar({ activeSection, setActiveSection, onOpenGuide, guideOpen }) {
   const { user, logout } = useAuth();
+
+  const handleItemClick = (id) => (id === "guide" ? onOpenGuide?.() : setActiveSection(id));
+  const isActive = (id) => (id === "guide" ? !!guideOpen : activeSection === id);
 
   const menuItems = [
     { id: "overview", label: "Panoramica", icon: LayoutDashboard },
@@ -13,6 +16,7 @@ export default function DashboardSidebar({ activeSection, setActiveSection }) {
     { id: "bookings", label: "Prenotazioni", icon: ListOrdered },
     { id: "settings", label: "Impostazioni", icon: Settings },
     { id: "tutorials", label: "Video Tutorial", icon: Play },
+    { id: "guide", label: "Guida Interattiva", icon: GraduationCap },
     { id: "support", label: "Supportaci", icon: Heart },
   ];
 
@@ -65,9 +69,9 @@ export default function DashboardSidebar({ activeSection, setActiveSection }) {
             {menuItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => handleItemClick(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                  activeSection === item.id
+                  isActive(item.id)
                     ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
                     : "text-gray-300 hover:bg-gray-800/50"
                 }`}
@@ -98,9 +102,9 @@ export default function DashboardSidebar({ activeSection, setActiveSection }) {
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => handleItemClick(item.id)}
               className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
-                activeSection === item.id
+                isActive(item.id)
                   ? "bg-purple-900/50 text-purple-400"
                   : "text-gray-400"
               }`}

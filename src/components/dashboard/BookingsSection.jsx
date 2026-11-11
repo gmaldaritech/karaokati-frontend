@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, XCircle, Music, Plus, Search, X, ChevronLeft, ChevronRight, MapPin, Trash2, Download, Loader2, Copy } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Music, Plus, Search, X, ChevronLeft, ChevronRight, MapPin, Trash2, Download, Loader2, Copy, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -28,6 +28,7 @@ export default function BookingsSection() {
   const [activeVenue, setActiveVenue] = useState(null);
   const [venues, setVenues] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [copiedId, setCopiedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -769,9 +770,13 @@ useEffect(() => {
                             try { document.execCommand("copy"); } catch (err) {}
                             document.body.removeChild(textArea);
                           }
+                          setCopiedId(booking.id);
+                          setTimeout(() => setCopiedId((id) => (id === booking.id ? null : id)), 1500);
                         }}
                       >
-                        <Copy className="w-4 h-4 mr-1.5" />
+                        {copiedId === booking.id
+                          ? <Check className="w-4 h-4 mr-1.5" />
+                          : <Copy className="w-4 h-4 mr-1.5" />}
                       </Button>
                     </div>
                   </div>

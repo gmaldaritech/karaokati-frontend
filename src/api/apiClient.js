@@ -220,6 +220,10 @@ async request(endpoint, options = {}) {
     return this.put('/auth/change-password', passwordData);
   }
 
+  async updateGuideStatus(status) {
+    return this.put('/auth/me/guide-status', { status });
+  }
+
   async resendVerificationEmail(email) {
   return this.post('/auth/resend-verification', { email });
 }
