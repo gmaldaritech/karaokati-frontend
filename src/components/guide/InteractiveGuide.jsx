@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   GraduationCap, X, Check, Info, Zap, Loader2, MapPin, Building2, Power,
   ArrowLeft, ArrowRight, Copy, Trash2, CheckCircle, Mic2, Music, Layers,
-  ListOrdered, Flame
+  ListOrdered, Flame, QrCode
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,13 +97,13 @@ const RealOpsNote = () => (
 // Layout comune a tutti i passaggi: riquadro a sinistra + contenuto a destra
 const StepLayout = ({ pill, title, description, info, children }) => (
   <div className="grid md:grid-cols-[300px_1fr] gap-6 items-start">
-    <div className="rounded-2xl border-2 border-purple-400/60 bg-gradient-to-br from-purple-600/40 to-fuchsia-600/25 p-6 space-y-4 shadow-xl shadow-purple-900/40 ring-1 ring-white/10 md:sticky md:top-6">
-      <span className="inline-block rounded-full border border-purple-400/50 bg-purple-500/25 px-3 py-1 text-xs font-medium text-purple-50">
-        {pill}
+           <div className="relative rounded-2xl bg-purple-200/90 p-6 space-y-4 shadow-[0_0_35px_rgba(217,70,239,0.35)] ring-2 ring-fuchsia-400/70 md:sticky md:top-6 guide-glow">
+      <span className="inline-block rounded-full bg-fuchsia-500 px-3 py-1 text-sm font-semibold text-white">
+        👉 Cosa fare ora
       </span>
-      <h3 className="text-3xl font-bold text-white leading-tight">{title}</h3>
-      <p className="text-purple-100/90">{description}</p>
-      {info && <InfoBox>{info}</InfoBox>}
+      <h3 className="text-3xl font-bold text-purple-950 leading-tight">{title}</h3>
+      <p className="text-lg text-purple-900">{description}</p>
+      {info && <InfoBox className="bg-white/50 border-purple-300 text-purple-900">{info}</InfoBox>}
     </div>
     <div className="min-w-0">{children}</div>
   </div>
@@ -581,43 +581,63 @@ export default function InteractiveGuide({ open, onClose }) {
   const renderQr = () => (
     <StepLayout
       pill="Passaggio 3 di 4"
-      title="Mettiti nei panni di un cliente"
-      description="Prova ora come farebbe un tuo cliente: inquadra il QR Code con lo smartphone e invia la tua prima prenotazione."
+      title={
+        <>
+          <span className="block text-lg font-semibold text-fuchsia-700 mb-1">Mettiti nei panni di un cliente</span>
+          Scansiona il QR Code e prenota
+        </>
+      }
+      description="Inquadra il QR Code con lo smartphone e invia la tua prima prenotazione, proprio come farebbe un tuo cliente."
       info="Tranquillo, è solo una prova: potrai eliminare la prenotazione quando vuoi."
     >
       <div className="space-y-4">
         <Card className={cardCls}>
-          <CardContent className="p-6 grid md:grid-cols-[auto_1fr_1.2fr] gap-6 items-center">
-            <div className="w-48 h-48 rounded-xl bg-white p-2 mx-auto">
-              {qrUrl
-                ? <img src={qrUrl} alt="QR personale" className="w-full h-full object-contain" />
-                : <Loader2 className="w-8 h-8 animate-spin text-purple-600 m-auto" />}
-            </div>
-            <div className="space-y-3 min-w-0">
-              <div className="flex items-center gap-2 text-lg font-bold text-white">
-                <Building2 className="w-5 h-5 text-purple-400 shrink-0" />{venue?.name}
+          <CardContent className="p-6 grid md:grid-cols-[auto_1fr] gap-8 items-center">
+            <div className="flex flex-col items-center gap-2 mx-auto">
+              <div className="w-48 h-48 rounded-xl bg-white p-2">
+                {qrUrl
+                  ? <img src={qrUrl} alt="QR personale" className="w-full h-full object-contain" />
+                  : <Loader2 className="w-8 h-8 animate-spin text-purple-600 m-auto" />}
               </div>
-              {venue?.address && (
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <MapPin className="w-4 h-4 text-purple-400 shrink-0" />{venue.address}
-                </div>
-              )}
-              <Badge className="bg-green-900/50 text-green-300 border-green-700/50">
-                <Power className="w-3 h-3 mr-1" />Serata Avviata
-              </Badge>
+
+              {/* Manina animata che indica il QR */}
+              <div className="flex flex-col items-center gap-1 text-center pointer-events-none">
+                <span className="animate-bounce text-3xl select-none leading-none" aria-hidden="true">👆</span>
+                <span className="text-base font-medium text-purple-300 whitespace-nowrap">Inquadrami con la fotocamera</span>
+              </div>
             </div>
-            <ol className="space-y-4 md:border-l md:border-purple-800/40 md:pl-6">
-              {[
-                "Apri la fotocamera del tuo smartphone e scansiona il QR",
-                "Invia una prenotazione dal tuo telefono, come farebbe un cliente",
-                "La richiesta arriverà automaticamente qui quando sarà ricevuta",
-              ].map((t, i) => (
-                <li key={t} className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="w-8 h-8 rounded-full border border-purple-400/60 bg-purple-500/20 flex items-center justify-center font-bold text-white shrink-0">{i + 1}</span>
-                  {t}
+            <div className="space-y-4 min-w-0">
+              <h4 className="text-xl font-bold text-white">A che punto sei</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-6 h-6 text-green-400 shrink-0" />
+                  <div>
+                    <div className="font-semibold text-white">Locale creato</div>
+                    <div className="text-sm text-gray-400">
+                      {venue?.name}{venue?.address && <> · {venue.address}</>}
+                    </div>
+                  </div>
                 </li>
-              ))}
-            </ol>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-6 h-6 text-green-400 shrink-0" />
+                  <div>
+                    <div className="font-semibold text-white">Serata avviata</div>
+                    <div className="text-sm text-gray-400">Le prenotazioni sono aperte</div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  {booking
+                    ? <CheckCircle className="w-6 h-6 text-green-400 shrink-0" />
+                    : <span className="w-6 h-6 rounded-full border-2 border-purple-300 shrink-0" />}
+                  <div>
+                    <div className="font-semibold text-white">Prima prenotazione</div>
+                    <div className={booking ? "text-sm text-gray-400" : "text-sm text-purple-200"}>
+                      {booking ? "Richiesta ricevuta" : "Inquadra il QR e prenota una canzone"}
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </CardContent>
         </Card>
 
@@ -629,8 +649,16 @@ export default function InteractiveGuide({ open, onClose }) {
             </button>
           </div>
         ) : (
-          <div className="rounded-xl border border-purple-400/40 bg-purple-500/20 py-5 flex items-center justify-center gap-3 text-white text-lg font-semibold">
-            <Loader2 className="w-5 h-5 animate-spin text-purple-200" /> In attesa della richiesta...
+          <div className="rounded-xl border border-purple-400/40 bg-purple-500/20 py-5 px-4 flex items-center justify-center gap-3 text-white text-base md:text-lg font-semibold text-center">
+            <Loader2 className="w-5 h-5 animate-spin text-purple-200 shrink-0" />
+            <span className="flex flex-col">
+              <span>In attesa della tua prenotazione</span>
+              <span className="text-sm md:text-base font-normal text-purple-100">
+                Scansiona il QR Code
+                <QrCode className="inline-block w-5 h-5 mx-1 -mt-1 text-purple-200" />
+                {" "} e prenota una canzone per proseguire
+              </span>
+            </span>
           </div>
         )}
       </div>
@@ -742,8 +770,11 @@ export default function InteractiveGuide({ open, onClose }) {
                 <div className="w-10 h-10 rounded-lg bg-cyan-900/40 border border-cyan-500/40 flex items-center justify-center"><Music className="w-5 h-5 text-cyan-300" /></div>
                 <h4 className="text-lg font-bold text-white">Con catalogo</h4>
               </div>
+              <p className="text-sm text-cyan-200 mb-3">
+                Ideale se hai le tue basi karaoke sul computer o su un disco.
+              </p>
               <ul className="space-y-2">
-                {["I clienti cercano i brani disponibili", "Puoi importarlo da Excel", "Puoi generarlo automaticamente dalle tue basi karaoke"].map((t) => (
+                {["I clienti scelgono tra le canzoni che hai", "Puoi importarlo da Excel", "Puoi generarlo automaticamente dalle tue basi karaoke"].map((t) => (
                   <li key={t} className="flex items-start gap-2 text-sm text-gray-200"><Check className="w-4 h-4 mt-0.5 text-purple-400 shrink-0" />{t}</li>
                 ))}
               </ul>
@@ -753,8 +784,11 @@ export default function InteractiveGuide({ open, onClose }) {
                 <div className="w-10 h-10 rounded-lg bg-purple-900/40 border border-purple-500/40 flex items-center justify-center"><Layers className="w-5 h-5 text-purple-300" /></div>
                 <h4 className="text-lg font-bold text-white">Senza catalogo</h4>
               </div>
+              <p className="text-sm text-purple-200 mb-3">
+                Ideale se non hai basi tue e usi piattaforme o app che te le forniscono.
+              </p>
               <ul className="space-y-2">
-                {["Puoi usare Karaokati da subito", "I clienti inviano titolo e artista", "Le richieste arrivano come “Richiesta libera”"].map((t) => (
+                {["Puoi usare Karaokati da subito, senza caricare nulla", "I clienti inviano titolo e artista", "Tu cerchi la canzone sulla tua piattaforma e accetti la richiesta"].map((t) => (
                   <li key={t} className="flex items-start gap-2 text-sm text-gray-200"><Check className="w-4 h-4 mt-0.5 text-purple-400 shrink-0" />{t}</li>
                 ))}
               </ul>

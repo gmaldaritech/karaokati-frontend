@@ -467,11 +467,11 @@ const showMyBookings = async () => {
               className="bg-gray-800/80 border border-purple-700/30 rounded-xl p-3 hover:border-purple-500/70 hover:bg-gray-800 transition-all text-left group"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-900/50 border border-purple-700/50 rounded-lg flex items-center justify-center group-hover:bg-purple-800/50 transition-colors">
+                                <div className="w-10 h-10 shrink-0 bg-purple-900/50 border border-purple-700/50 rounded-lg flex items-center justify-center group-hover:bg-purple-800/50 transition-colors">
                   <Music className="w-5 h-5 text-purple-400" />
                 </div>
-                <div className="text-gray-200 text-sm flex-1 group-hover:text-white transition-colors">{song}</div>
-                <div className="text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="text-gray-200 text-sm flex-1 min-w-0 break-words group-hover:text-white transition-colors">{song}</div>
+                <div className="hidden md:block shrink-0 text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   Clicca per prenotare
                 </div>
               </div>
@@ -602,7 +602,7 @@ const showMyBookings = async () => {
         
         {/* All Results Dialog */}
         <Dialog open={showAllResultsDialog} onOpenChange={setShowAllResultsDialog}>
-          <DialogContent className="bg-gray-900 border-purple-800/30 text-white max-w-2xl max-h-[80vh]">
+                    <DialogContent className="bg-gray-900 border-purple-800/30 text-white w-[calc(100%-2rem)] max-w-2xl max-h-[80vh] overflow-hidden [&>*]:min-w-0 rounded-lg">
             <DialogHeader>
               <DialogTitle className="text-xl">
                 🔍 {allSearchResults.length} canzoni trovate
@@ -627,10 +627,10 @@ const showMyBookings = async () => {
                     className="w-full bg-gray-800/80 border border-purple-700/30 rounded-xl p-3 hover:border-purple-500/70 hover:bg-gray-800 transition-all text-left group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-900/50 border border-purple-700/50 rounded-lg flex items-center justify-center group-hover:bg-purple-800/50 transition-colors">
+                                            <div className="w-10 h-10 shrink-0 bg-purple-900/50 border border-purple-700/50 rounded-lg flex items-center justify-center group-hover:bg-purple-800/50 transition-colors">
                         <Music className="w-5 h-5 text-purple-400" />
                       </div>
-                      <div className="text-gray-200 text-sm flex-1 group-hover:text-white transition-colors">{song}</div>
+                      <div className="text-gray-200 text-sm flex-1 min-w-0 break-words group-hover:text-white transition-colors">{song}</div>
                     </div>
                   </button>
                 ))}

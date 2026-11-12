@@ -85,3 +85,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Bagliore del box istruzioni della guida (non sbiadisce il contenuto) */
+@keyframes guide-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(217, 70, 239, 0.30); }
+  50%      { box-shadow: 0 0 45px 8px rgba(217, 70, 239, 0.9); }
+}
+.guide-glow {
+  animation: guide-glow 1.2s ease-in-out infinite;
+}
