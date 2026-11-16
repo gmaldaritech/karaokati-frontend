@@ -297,14 +297,17 @@ export default function CatalogSection() {
         return;
       }
 
+      // Lo stesso file può trovarsi in più sottocartelle: nel catalogo basta una volta
+      const uniqueFiles = [...new Set(audioFiles)];
+
       // Genera Excel
       try {
         const XLSX = await import('xlsx');
-        
+
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.aoa_to_sheet([
           ['Titolo Canzone'],
-          ...audioFiles.map(file => [file])
+          ...uniqueFiles.map(file => [file])
         ]);
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Catalogo');
 
@@ -315,12 +318,12 @@ export default function CatalogSection() {
         link.download = `catalogo_da_cartella_${new Date().toLocaleDateString("it-IT").replace(/\//g, "-")}.xlsx`;
         link.click();
         
-        toast.success(`🎉 Catalogo Excel Generato con ${audioFiles.length} file!`);
-        
+        toast.success(`🎉 Catalogo Excel Generato con ${uniqueFiles.length} file!`);
+
       } catch (xlsxError) {
         console.error('XLSX Error:', xlsxError);
-        // Fallback CSV...
-        toast.success("🎉 Catalogo generato (fallback CSV)!");
+        toast.error("Non è stato possibile creare il file Excel");
+        return;
       }
       
       setShowGenerateDialog(false);
@@ -351,65 +354,52 @@ export default function CatalogSection() {
     }
   };
 
-  const readExcelFile = (file) => {
-    return new Promise((resolve, reject) => {
-      console.log('🔹 Inizio lettura file:', file.name);
-      
-      if (window.XLSX) {
-        processFile();
-        return;
-      }
-      
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
-      script.onload = () => {
-        console.log('📊 XLSX caricato da CDN');
-        processFile();
-      };
-      script.onerror = () => {
-        reject(new Error('Impossibile caricare la libreria Excel. Controlla la connessione internet.'));
-      };
-      document.head.appendChild(script);
-      
-      function processFile() {
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = window.XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = window.XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+  const readExcelFile = async (file) => {
+    console.log('🔹 Inizio lettura file:', file.name);
 
-            // 🚫 Più di una colonna con dati → file non valido
-            const hasExtraColumns = jsonData.some(row =>
-              Array.isArray(row) &&
-              row.slice(1).some(cell => cell !== undefined && cell !== null && String(cell).trim() !== '')
-            );
+    // Libreria inclusa nell'app (stessa versione 0.18.5 che prima veniva scaricata da unpkg)
+    let XLSX;
+    try {
+      XLSX = await import('xlsx');
+    } catch {
+      throw new Error('Impossibile caricare la libreria Excel. Ricarica la pagina e riprova.');
+    }
 
-            if (hasExtraColumns) {
-              const err = new Error('MULTI_COLUMN');
-              err.code = 'MULTI_COLUMN';
-              reject(err);
-              return;
-            }
-            
-            const songs = jsonData
-              .slice(jsonData[0] && typeof jsonData[0][0] === 'string' && jsonData[0][0].toLowerCase().includes('titolo') ? 1 : 0)
-              .map(row => row[0])
-              .filter(song => song && typeof song === 'string' && song.trim())
-              .map(song => song.trim());
-            
-            resolve([...new Set(songs)]);
-          } catch (error) {
-            reject(new Error('Errore nella lettura del file Excel: ' + error.message));
-          }
-        };
-        
-        reader.onerror = () => reject(new Error('Errore nella lettura del file'));
-        reader.readAsArrayBuffer(file);
-      }
-    });
+    let data;
+    try {
+      data = new Uint8Array(await file.arrayBuffer());
+    } catch {
+      throw new Error('Errore nella lettura del file');
+    }
+
+    let jsonData;
+    try {
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+    } catch (error) {
+      throw new Error('Errore nella lettura del file Excel: ' + error.message);
+    }
+
+    // 🚫 Più di una colonna con dati → file non valido
+    const hasExtraColumns = jsonData.some(row =>
+      Array.isArray(row) &&
+      row.slice(1).some(cell => cell !== undefined && cell !== null && String(cell).trim() !== '')
+    );
+
+    if (hasExtraColumns) {
+      const err = new Error('MULTI_COLUMN');
+      err.code = 'MULTI_COLUMN';
+      throw err;
+    }
+
+    const songs = jsonData
+      .slice(jsonData[0] && typeof jsonData[0][0] === 'string' && jsonData[0][0].toLowerCase().includes('titolo') ? 1 : 0)
+      .map(row => row[0])
+      .filter(song => song && typeof song === 'string' && song.trim())
+      .map(song => song.trim());
+
+    return [...new Set(songs)];
   };
 
   const handleCloseImportDialog = () => {

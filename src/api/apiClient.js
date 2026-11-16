@@ -282,20 +282,6 @@ async request(endpoint, options = {}) {
     return this.get(`/songs/public/${qrCodeId}`, params);
   }
 
-  async generateExcelCatalog(songs) {
-    const response = await fetch(`${this.baseURL}/songs/generate-excel`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify({ songs }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate Excel file');
-    }
-
-    return response.blob();
-  }
-
   async downloadCatalog() {
     const response = await fetch(`${this.baseURL}/songs/export`, {
       headers: this.getHeaders(),

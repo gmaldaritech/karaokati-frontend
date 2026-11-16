@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ArrowLeft, Mic2, MessageSquare, Send, CheckCircle } from "lucide-react";
@@ -15,9 +15,15 @@ import {
 import { apiClient } from '@/api/apiClient';
 import { toast } from "sonner";
 
+// Deve coincidere con MAX_SUGGESTION_LENGTH del backend (app/api/v1/suggestions.py)
+const MAX_SUGGESTION_LENGTH = 2000;
+
 export default function Suggestions() {
   const [suggestion, setSuggestion] = useState("");
   const [showThankYou, setShowThankYou] = useState(false);
+  const [sending, setSending] = useState(false);
+  // Blocca subito un secondo clic, prima ancora che il pulsante risulti disattivato
+  const sendingRef = useRef(false);
 
   useEffect(() => {
     document.title = "Suggerimenti - Karaokati";
@@ -27,21 +33,31 @@ export default function Suggestions() {
   const handleSubmit = async (e) => {
 	e.preventDefault();
 	
-	if (suggestion.trim()) {
-		try {
-		// 🆕 Invia suggerimento al backend
+	// Un solo invio alla volta: evita email doppie con il doppio clic
+	if (!suggestion.trim() || sendingRef.current) return;
+
+	sendingRef.current = true;
+	setSending(true);
+	try {
 		await apiClient.sendSuggestion(suggestion.trim());
-		
+
 		// Mostra popup di ringraziamento
 		setShowThankYou(true);
-		
+
 		// Reset del form
 		setSuggestion("");
-		} catch (error) {
+	} catch (error) {
 		console.error("Errore invio suggerimento:", error);
-		// Opzionale: mostra toast di errore
-		toast.error("Errore nell'invio del suggerimento");
-		}
+		// Il backend spiega il motivo (es. limite giornaliero raggiunto): lo mostriamo
+		// solo se è una frase, non un codice tecnico o un errore di rete
+		const msg = error?.message;
+		const isReadable = typeof msg === "string" && msg.length > 0
+			&& !msg.startsWith("HTTP Error") && !msg.startsWith("[object")
+			&& !msg.includes("fetch");
+		toast.error(isReadable ? msg : "Errore nell'invio del suggerimento");
+	} finally {
+		sendingRef.current = false;
+		setSending(false);
 	}
 	};
 
@@ -104,21 +120,22 @@ export default function Suggestions() {
                   placeholder="Scrivi qui il tuo suggerimento, idea o segnalazione... Più dettagli fornisci, meglio possiamo aiutarti!"
                   value={suggestion}
                   onChange={(e) => setSuggestion(e.target.value)}
+                  maxLength={MAX_SUGGESTION_LENGTH}
                   className="min-h-[200px] bg-gray-800/50 border-purple-800/50 text-white placeholder:text-gray-500 focus:border-purple-600 text-base resize-none"
                   required
                 />
-                <p className="text-sm text-gray-400 mt-2">
-                  {suggestion.length} caratteri
+                <p className={`text-sm mt-2 ${suggestion.length >= MAX_SUGGESTION_LENGTH ? "text-pink-400" : "text-gray-400"}`}>
+                  {suggestion.length} / {MAX_SUGGESTION_LENGTH} caratteri
                 </p>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-6"
-                disabled={!suggestion.trim()}
+                disabled={!suggestion.trim() || sending}
               >
                 <Send className="w-5 h-5 mr-2" />
-                Invia Suggerimento
+                {sending ? "Invio in corso..." : "Invia Suggerimento"}
               </Button>
             </form>
 
