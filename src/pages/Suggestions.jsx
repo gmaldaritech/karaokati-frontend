@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import SiteMenu from "@/components/SiteMenu";
 import { ArrowLeft, Mic2, MessageSquare, Send, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,6 +81,7 @@ export default function Suggestions() {
             />
             </div>
           </Link>
+          <SiteMenu />
         </div>
       </header>
 

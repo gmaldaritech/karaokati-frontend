@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import SiteMenu from "@/components/SiteMenu";
 import { Heart, Coffee, ArrowLeft, ExternalLink, Zap, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -111,6 +112,7 @@ const Header = () => {
           />
           </div>
         </Link>
+        <SiteMenu />
       </div>
     </header>
   );

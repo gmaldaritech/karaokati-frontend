@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import SiteMenu from "@/components/SiteMenu";
 import { Mic2, Heart, Users, Lightbulb, Target, Sparkles, Code, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +29,7 @@ export default function AboutUs() {
             />
             </div>
           </Link>
+          <SiteMenu />
         </div>
       </header>
 

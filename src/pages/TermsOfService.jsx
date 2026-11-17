@@ -1,17 +1,26 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import SiteMenu from "@/components/SiteMenu";
 import { ArrowLeft, Mic2, FileText, Shield, Scale, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function TermsOfService() {
+  const { hash } = useLocation();
+
   useEffect(() => {
     document.title = "Termini e Condizioni di Servizio - Karaokati";
-    window.scrollTo(0, 0);
   }, []);
 
-  const Section = ({ number, title, children }) => (
-    <section className="mb-10">
+  // Con un'ancora (es. /terms#contatti) porta alla sezione, altrimenti in cima
+  useEffect(() => {
+    const target = hash ? document.getElementById(hash.slice(1)) : null;
+    if (target) target.scrollIntoView({ behavior: "smooth" });
+    else window.scrollTo(0, 0);
+  }, [hash]);
+
+  const Section = ({ id, number, title, children }) => (
+    <section id={id} className="mb-10 scroll-mt-28">
       <h2 className="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-3">
         <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm px-3 py-1 rounded-full">
           Art. {number}
@@ -43,6 +52,7 @@ export default function TermsOfService() {
             />
             </div>
           </Link>
+          <SiteMenu />
         </div>
       </header>
 
@@ -434,7 +444,7 @@ export default function TermsOfService() {
             </div>
           </Section>
 
-          <Section number="13" title="Contatti e Supporto">
+          <Section id="contatti" number="13" title="Contatti e Supporto">
             <p>Per domande, problemi o suggerimenti, puoi contattarci:</p>
             <div className="bg-gray-800/50 rounded-lg p-4 mt-4">
               <p className="text-purple-400 mb-2">📧 Email di supporto:</p>

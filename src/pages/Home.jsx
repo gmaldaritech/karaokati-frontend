@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import SiteMenu from "@/components/SiteMenu";
 import {
   Heart, Mic2, QrCode, Music, Sparkles, Clock,
   Check, ArrowRight, ChevronLeft, ChevronRight, Coffee,
@@ -17,11 +18,13 @@ import {
 const Header = () => (
   <header className="fixed top-0 w-full bg-gray-900/90 backdrop-blur-md border-b border-purple-800/30 z-50">
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
-      <img src="/logo.png" alt="Karaokati" className="h-9 md:h-10 w-auto" />
+      <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Karaokati, torna in cima">
+        <img src="/logo.png" alt="Karaokati" className="h-9 md:h-10 w-auto" />
+      </Link>
       <div className="flex items-center gap-2 md:gap-4">
         <Link
           to={createPageUrl("login")}
-          className="text-purple-300 hover:text-purple-100 px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-purple-900/50 transition text-sm md:text-base"
+          className="hidden sm:block text-purple-300 hover:text-purple-100 px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-purple-900/50 transition text-sm md:text-base"
         >
           Accedi
         </Link>
@@ -30,8 +33,9 @@ const Header = () => (
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 md:px-6 rounded-lg transition text-sm md:text-base font-medium"
         >
           <span className="md:hidden">Registrati</span>
-          <span className="hidden md:inline">Registrati Gratis</span>
+          <span className="hidden md:inline">Registrati gratis</span>
         </Link>
+        <SiteMenu />
       </div>
     </div>
   </header>
@@ -577,6 +581,29 @@ const HowItWorksCarousel = () => {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % SLIDES_DATA.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + SLIDES_DATA.length) % SLIDES_DATA.length);
 
+  // Scorrimento col dito su telefono: basta un trascinamento orizzontale di almeno 50px
+  const touchStart = React.useRef(null);
+  const onTouchStart = (e) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e) => {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) (dx < 0 ? nextSlide : prevSlide)();
+  };
+
+  // Frecce ai lati: restano a metà schermo mentre si scorre il carosello (sticky),
+  // senza mai uscire dall'area del carosello
+  const arrowColumn = "absolute inset-y-0 z-10 flex flex-col justify-center pointer-events-none";
+  const arrowButton =
+    "pointer-events-auto sticky top-[calc(50vh-1.25rem)] bottom-[calc(50vh-1.25rem)] md:top-[calc(50vh-1.5rem)] md:bottom-[calc(50vh-1.5rem)] " +
+    "w-10 h-10 md:w-12 md:h-12 bg-gray-900/80 hover:bg-gray-700 backdrop-blur-sm border border-purple-800/50 rounded-full " +
+    "flex items-center justify-center shadow-lg transition";
+
   return (
     <section id="carousel" className="py-12 px-4 lg:py-20 lg:px-6 scroll-mt-20">
       <div className="max-w-6xl mx-auto">
@@ -589,7 +616,19 @@ const HowItWorksCarousel = () => {
           </p>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="relative">
+        <div className={`${arrowColumn} -left-3 lg:-left-4 xl:-left-14`}>
+          <button onClick={prevSlide} aria-label="Passaggio precedente" className={arrowButton}>
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
+          </button>
+        </div>
+        <div className={`${arrowColumn} -right-3 lg:-right-4 xl:-right-14`}>
+          <button onClick={nextSlide} aria-label="Passaggio successivo" className={arrowButton}>
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
+          </button>
+        </div>
+
+        <div className="overflow-hidden" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -646,17 +685,10 @@ const HowItWorksCarousel = () => {
             })}
           </div>
         </div>
+        </div>
 
-        {/* Navigazione */}
+        {/* Navigazione: pallini (le frecce sono ai lati del carosello) */}
         <div className="flex items-center justify-center gap-3 mt-6">
-          <button
-            onClick={prevSlide}
-            aria-label="Passaggio precedente"
-            className="w-10 h-10 md:w-12 md:h-12 bg-gray-800 hover:bg-gray-700 border border-purple-800/30 rounded-full flex items-center justify-center transition"
-          >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
-          </button>
-
           <div className="flex gap-1.5">
             {SLIDES_DATA.map((slide, index) => (
               <button
@@ -671,14 +703,6 @@ const HowItWorksCarousel = () => {
               />
             ))}
           </div>
-
-          <button
-            onClick={nextSlide}
-            aria-label="Passaggio successivo"
-            className="w-10 h-10 md:w-12 md:h-12 bg-gray-800 hover:bg-gray-700 border border-purple-800/30 rounded-full flex items-center justify-center transition"
-          >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
-          </button>
         </div>
 
         <div className="text-center mt-4">
@@ -1027,7 +1051,7 @@ const Footer = () => (
           <div>
             <h4 className="font-bold mb-4">Supporto</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li><Link to={createPageUrl("support")} className="hover:text-white transition">Fai una donazione</Link></li>
+              <li><Link to={createPageUrl("support")} className="hover:text-white transition">Sostienici</Link></li>
               <li><Link to={createPageUrl("suggestions")} className="hover:text-white transition">Suggerimenti</Link></li>
             </ul>
           </div>
@@ -1036,7 +1060,7 @@ const Footer = () => (
             <ul className="space-y-2 text-gray-400 text-sm">
               <li><Link to={createPageUrl("about-us")} className="hover:text-white transition">Chi siamo</Link></li>
               <li><Link to={createPageUrl("terms")} className="hover:text-white transition">Termini di servizio</Link></li>
-              <li><Link to={createPageUrl("terms")} className="hover:text-white transition">Contatti</Link></li>
+              <li><Link to={`${createPageUrl("terms")}#contatti`} className="hover:text-white transition">Contatti</Link></li>
             </ul>
           </div>
           <div>
