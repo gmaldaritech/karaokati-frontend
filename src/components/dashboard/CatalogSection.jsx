@@ -15,6 +15,20 @@ import ConfirmDialog from "../ConfirmDialog";
 import { apiClient } from "@/api/apiClient";
 import { toast } from "sonner";
 
+// true solo su un computer: Windows, Mac, Linux o Chromebook. Telefoni e tablet (anche Android e iPad) → false.
+function isComputer() {
+  if (typeof navigator === "undefined") return false;
+  // Chrome ed Edge dicono direttamente il sistema
+  const platform = navigator.userAgentData?.platform;
+  if (platform) return ["Windows", "macOS", "Linux", "Chrome OS", "Chromium OS"].includes(platform);
+  // Altrimenti dal testo del browser. Android va escluso prima: anche lui si dichiara "Linux"
+  const ua = navigator.userAgent || "";
+  if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return false;
+  // L'iPad si presenta come "Macintosh" ma ha lo schermo touch
+  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return false;
+  return /Windows|Macintosh|Linux|CrOS/.test(ua);
+}
+
 export default function CatalogSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,10 +55,10 @@ export default function CatalogSection() {
   // 🆕 Stati per generazione da cartella
   const [generating, setGenerating] = useState(false);
   
-  // La generazione da cartella usa showDirectoryPicker: c'è solo su Chrome/Edge desktop.
-  // Decidiamo in base al browser, non alla larghezza dello schermo.
-  const canPickFolder = typeof window !== "undefined" && typeof window.showDirectoryPicker === "function";
-  // Se il browser non lo supporta (telefoni, tablet, Safari, Firefox) la card resta visibile ma grigia
+  // La generazione da cartella usa showDirectoryPicker: c'è su Chrome/Edge, ma anche su Chrome per Android.
+  // Per questo serve anche un computer (Windows, Mac, Linux, Chromebook). Non si decide dalla larghezza dello schermo.
+  const canPickFolder = isComputer() && typeof window !== "undefined" && typeof window.showDirectoryPicker === "function";
+  // Se non si può (telefoni, tablet, Safari, Firefox) la card resta visibile ma grigia
   const disableGenerate = !canPickFolder;
 
   const itemsPerPage = 50;
