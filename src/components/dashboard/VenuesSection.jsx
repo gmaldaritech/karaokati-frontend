@@ -292,7 +292,7 @@ export default function VenuesSection() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold mb-2 text-white">I Tuoi Locali</h2>
+          <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">I Tuoi Locali</h2>
           <p className="text-gray-400">Gestisci tutti i locali dove fai serate</p>
         </div>
         <Button 

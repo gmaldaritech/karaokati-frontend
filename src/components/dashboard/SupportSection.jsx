@@ -16,7 +16,7 @@ export default function SupportSection() {
           <span className="text-sm font-medium text-purple-300">Supporto Volontario</span>
         </div>
         
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+        <h1 className="text-2xl desk:text-4xl font-bold text-white mb-6 leading-tight">
           Sostieni lo sviluppo di{" "}
           <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Karaokati

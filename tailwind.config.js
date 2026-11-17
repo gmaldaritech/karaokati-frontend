@@ -4,6 +4,14 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		screens: {
+  			// Layout "da computer" della dashboard (barra laterale da 256px): serve larghezza E altezza.
+  			// Sotto i 1024px (tablet in verticale) la barra laterale toglierebbe troppo spazio;
+  			// sotto i 500px di altezza (telefono girato) non ci starebbe.
+  			desk: { raw: '(min-width: 1024px) and (min-height: 500px)' },
+  			// Schermo basso (telefono in orizzontale): barre più compatte
+  			short: { raw: '(max-height: 499px)' }
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

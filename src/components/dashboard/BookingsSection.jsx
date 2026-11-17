@@ -2,7 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, XCircle, Music, Plus, Search, X, ChevronLeft, ChevronRight, MapPin, Trash2, Download, Loader2, Copy, Check } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Music, Plus, Search, X, ChevronLeft, ChevronRight, MapPin, Trash2, Download, Loader2, Copy, Check, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -412,7 +418,7 @@ useEffect(() => {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-bold mb-2 text-white">Prenotazioni</h2>
+          <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">Prenotazioni</h2>
           <p className="text-gray-400">Gestisci le richieste dei clienti in tempo reale</p>
         </div>
         <div className="flex justify-center py-12">
@@ -426,7 +432,7 @@ useEffect(() => {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-bold mb-2 text-white">Prenotazioni</h2>
+          <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">Prenotazioni</h2>
           <p className="text-gray-400">Gestisci le richieste dei clienti in tempo reale</p>
         </div>
 
@@ -457,38 +463,62 @@ useEffect(() => {
         variant="danger"
       />
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold mb-2 text-white">Prenotazioni</h2>
-          <div className="flex items-center gap-2 text-gray-400">
-            <MapPin className="w-4 h-4 text-purple-400" />
-            <span>Locale: <span className="font-semibold text-purple-400">{activeVenue?.name}</span></span>
+      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+        <div className="min-w-0">
+          <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">Prenotazioni</h2>
+          <div className="flex items-center gap-2 text-gray-400 min-w-0">
+            <MapPin className="w-4 h-4 text-purple-400 flex-shrink-0" />
+            <span className="break-words min-w-0">Locale: <span className="font-semibold text-purple-400">{activeVenue?.name}</span></span>
           </div>
         </div>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 md:flex-wrap">
           {venueBookings.length > 0 && (
             <Button
               onClick={handleDownloadBookings}
               variant="ghost"
-              className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/50"
+              className="hidden md:inline-flex text-purple-300 hover:text-purple-100 hover:bg-purple-900/50"
             >
               <Download className="w-4 h-4 mr-2" />
               Scarica Prenotazioni
             </Button>
           )}
           {venueBookings.length > 0 && (
-            <Button 
+            <Button
               onClick={() => setShowDeleteAllDialog(true)}
               variant="ghost"
-              className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
+              className="hidden md:inline-flex text-red-400 hover:text-red-300 hover:bg-red-900/30"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Cancella Tutte
             </Button>
           )}
-          <Button 
+          {/* Su mobile "Scarica" e "Cancella tutte" stanno nel menu ⋯ */}
+          {venueBookings.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  aria-label="Altre azioni"
+                  className="md:hidden h-11 w-11 p-0 text-purple-300 bg-purple-950/30 hover:bg-purple-900/50"
+                >
+                  <MoreHorizontal className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-gray-900 border-purple-800/30 text-white">
+                <DropdownMenuItem onClick={handleDownloadBookings} className="py-3 text-purple-200 focus:bg-purple-900/40 focus:text-white">
+                  <Download className="w-4 h-4 mr-2" />
+                  Scarica Prenotazioni
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowDeleteAllDialog(true)} className="py-3 text-red-400 focus:bg-red-900/30 focus:text-red-300">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Cancella Tutte
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button
             onClick={() => setShowManualBooking(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="flex-1 md:flex-none h-11 md:h-10 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
           >
             <Plus className="w-4 h-4 mr-2" />
             Prenota Manualmente
@@ -701,16 +731,17 @@ useEffect(() => {
                       ✍️ Richiesta libera
                     </div>
                   )}
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                  {/* Su mobile i pulsanti vanno sotto, così il titolo della canzone resta leggibile */}
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="flex items-start md:items-center gap-3 md:gap-4 flex-1 min-w-0">
                       <div className="w-10 h-10 bg-purple-900/50 border border-purple-700/50 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-bold text-purple-400">
                           {booking.userName[0]}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-8 mb-1 flex-wrap">
-                          <span className="font-medium text-white">{booking.userName}</span>
+                        <div className="flex items-center gap-x-3 md:gap-x-8 gap-y-1 mb-1 flex-wrap">
+                          <span className="font-medium text-white break-words">{booking.userName}</span>
                           {getStatusBadge(booking.status)}
                           {booking.key && (
                             <Badge variant="outline" className="border-purple-700/50 text-purple-300">
@@ -719,7 +750,7 @@ useEffect(() => {
                           )}
                         </div>
 
-                        <div className="text-sm text-gray-400 truncate">{booking.song}</div>
+                        <div className="text-sm text-gray-300 md:text-gray-400 break-words">{booking.song}</div>
                         {booking.notes && (
                           <div className="mt-1.5 flex items-start gap-1.5 text-xs bg-purple-950/30 border border-purple-900/30 p-2 rounded md:max-w-[90%]">
                             <span className="text-purple-400 font-semibold select-none">Note:</span>
@@ -730,11 +761,11 @@ useEffect(() => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 flex-shrink-0 items-center">
+                    <div className="flex gap-2 md:flex-shrink-0 items-center [&>button]:h-11 md:[&>button]:h-9">
                       {booking.status === "pending" && (
                         <Button
                           size="sm"
-                          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                          className="flex-1 md:flex-none bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                           onClick={() => handleAccept(booking.id)}
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
@@ -745,7 +776,8 @@ useEffect(() => {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="text-red-400 hover:text-red-300 hover:bg-red-900/30"
+                        className={`${booking.status === "pending" ? "w-14" : "flex-1"} md:w-auto md:flex-none text-red-400 hover:text-red-300 hover:bg-red-900/30 bg-red-950/20 md:bg-transparent`}
+                        title="Elimina prenotazione"
                         onClick={() => handleReject(booking.id)}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -753,7 +785,7 @@ useEffect(() => {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="border-purple-700/40 text-purple-300 hover:bg-purple-900/40 hover:text-white"
+                        className={`${booking.status === "pending" ? "w-14" : "flex-1"} md:w-auto md:flex-none border-purple-700/40 text-purple-300 hover:bg-purple-900/40 hover:text-white bg-purple-950/30 md:bg-transparent`}
                         title="Copia titolo canzone"
                         onClick={() => {
                           const textToCopy = booking.song;
@@ -775,8 +807,8 @@ useEffect(() => {
                         }}
                       >
                         {copiedId === booking.id
-                          ? <Check className="w-4 h-4 mr-1.5" />
-                          : <Copy className="w-4 h-4 mr-1.5" />}
+                          ? <Check className="w-4 h-4 md:mr-1.5" />
+                          : <Copy className="w-4 h-4 md:mr-1.5" />}
                       </Button>
                     </div>
                   </div>

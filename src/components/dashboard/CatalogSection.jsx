@@ -41,6 +41,12 @@ export default function CatalogSection() {
   // 🆕 Stati per generazione da cartella
   const [generating, setGenerating] = useState(false);
   
+  // La generazione da cartella usa showDirectoryPicker: c'è solo su Chrome/Edge desktop.
+  // Decidiamo in base al browser, non alla larghezza dello schermo.
+  const canPickFolder = typeof window !== "undefined" && typeof window.showDirectoryPicker === "function";
+  // Se il browser non lo supporta (telefoni, tablet, Safari, Firefox) la card resta visibile ma grigia
+  const disableGenerate = !canPickFolder;
+
   const itemsPerPage = 50;
 
   // Load songs on component mount
@@ -415,7 +421,7 @@ export default function CatalogSection() {
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h2 className="text-3xl font-bold text-white">Catalogo Canzoni</h2>
+            <h2 className="text-2xl desk:text-3xl font-bold text-white">Catalogo Canzoni</h2>
             <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-orange-900/40 border border-orange-700/50 text-orange-300">
               Facoltativo
             </span>
@@ -448,8 +454,8 @@ export default function CatalogSection() {
       </p>
 
       <div className="grid md:grid-cols-3 gap-4">
-        <div className="border-2 border-cyan-700/30 bg-cyan-900/10 backdrop-blur-sm rounded-xl p-5">
-          <div className="flex items-start gap-4 mb-4">
+        <div className={`border-2 border-cyan-700/30 bg-cyan-900/10 backdrop-blur-sm rounded-xl p-5 flex flex-col justify-between h-full ${disableGenerate ? "opacity-60" : ""}`}>
+          <div className="flex items-start gap-4 mb-6">
             <div className="w-12 h-12 bg-cyan-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-6 h-6 text-cyan-400" />
             </div>
@@ -458,13 +464,14 @@ export default function CatalogSection() {
               <div className="text-sm text-cyan-400/80">Crea automaticamente un Excel dai tuoi file audio</div>
             </div>
           </div>
-          <Button 
+          <Button
             onClick={() => setShowGenerateDialog(true)}
+            disabled={disableGenerate}
             size="sm"
-            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
+            className="w-full h-auto min-h-9 py-2 mt-auto whitespace-normal text-center leading-tight bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Genera
+            {!disableGenerate && <Sparkles className="w-4 h-4 mr-2" />}
+            {disableGenerate ? "Solo da computer con Chrome o Edge" : "Genera"}
           </Button>
         </div>
 
@@ -609,7 +616,9 @@ export default function CatalogSection() {
 
               <div className="mt-3 p-3 bg-blue-900/30 border border-blue-700/50 rounded">
                 <p className="text-sm text-blue-300">
-                  💡 <strong>Non hai un Excel?</strong> Usa "Genera Catalogo Automaticamente" per crearlo dalla tua cartella di file audio
+                  💡 <strong>Non hai un Excel?</strong> {canPickFolder
+                    ? <>Usa &quot;Genera Catalogo Automaticamente&quot; per crearlo dalla tua cartella di file audio</>
+                    : <>Apri Karaokati dal computer con Chrome o Edge e usa &quot;Genera Catalogo Automaticamente&quot; per crearlo dalla tua cartella di file audio</>}
                 </p>
               </div>
             </div>

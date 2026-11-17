@@ -225,7 +225,7 @@ export default function OverviewSection({onSectionChange}) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold mb-2 text-white">
+        <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">
           Ciao, {user.stage_name}! 👋
         </h2>
         <p className="text-gray-400">Vista generale della tua attività</p>

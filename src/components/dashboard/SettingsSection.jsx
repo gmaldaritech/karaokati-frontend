@@ -254,7 +254,7 @@ export default function SettingsSection() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold mb-2 text-white">Impostazioni</h2>
+        <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">Impostazioni</h2>
         <p className="text-gray-400">Configura il tuo account e le preferenze</p>
       </div>
 

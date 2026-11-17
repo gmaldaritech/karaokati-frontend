@@ -82,8 +82,12 @@ export default function Dashboard() {
         guideOpen={showGuide}
       />
       
-      <div className="flex-1 md:ml-64">
-        <div className="p-6 md:p-8" key={contentKey}>
+      <div className="flex-1 min-w-0 desk:ml-64">
+        {/* Su mobile intestazione e barra in basso sono fisse: lasciamo spazio sopra e sotto */}
+        <div
+          className="px-4 pt-20 short:pt-14 pb-[calc(6rem+env(safe-area-inset-bottom))] short:pb-[calc(4rem+env(safe-area-inset-bottom))] desk:p-8"
+          key={contentKey}
+        >
           {renderContent()}
         </div>
       </div>

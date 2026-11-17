@@ -33,7 +33,7 @@ export default function VideoTutorialSection() {
   return (
     <div className="space-y-6">
       <div>
-          <h2 className="text-3xl font-bold mb-2 text-white">Video Tutorial</h2>
+          <h2 className="text-2xl desk:text-3xl font-bold mb-2 text-white">Video Tutorial</h2>
           <p className="text-gray-400">Impara a usare Karaokati con i nostri video tutorial passo dopo passo</p>
       </div>
 

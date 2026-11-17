@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  GraduationCap, X, Check, Info, Zap, Loader2, MapPin, Building2, Power,
+  GraduationCap, X, Check, Info, Loader2, MapPin, Building2, Power,
   ArrowLeft, ArrowRight, Copy, Trash2, CheckCircle, Mic2, Music, Layers,
   ListOrdered, Flame, QrCode
 } from "lucide-react";
@@ -87,22 +87,16 @@ const InfoBox = ({ children, className }) => (
   </div>
 );
 
-const RealOpsNote = () => (
-  <div className="flex items-center gap-2 text-sm text-purple-100">
-    <Zap className="w-4 h-4 text-purple-300 shrink-0" />
-    Le operazioni vengono eseguite realmente sul tuo account.
-  </div>
-);
-
 // Layout comune a tutti i passaggi: riquadro a sinistra + contenuto a destra
 const StepLayout = ({ pill, title, description, info, children }) => (
-  <div className="grid md:grid-cols-[300px_1fr] gap-6 items-start">
-           <div className="relative rounded-2xl bg-purple-200/90 p-6 space-y-4 shadow-[0_0_35px_rgba(217,70,239,0.35)] ring-2 ring-fuchsia-400/70 md:sticky md:top-6 guide-glow">
+  <div className="grid desk:grid-cols-[300px_1fr] gap-6 items-start">
+    {/* Su telefono e tablet il riquadro è più compatto, così l'azione da fare resta vicina */}
+    <div className="relative rounded-2xl bg-purple-200/90 p-5 desk:p-6 space-y-3 desk:space-y-4 shadow-[0_0_35px_rgba(217,70,239,0.35)] ring-2 ring-fuchsia-400/70 desk:sticky desk:top-6 guide-glow">
       <span className="inline-block rounded-full bg-fuchsia-500 px-3 py-1 text-sm font-semibold text-white">
         👉 Cosa fare ora
       </span>
-      <h3 className="text-3xl font-bold text-purple-950 leading-tight">{title}</h3>
-      <p className="text-lg text-purple-900">{description}</p>
+      <h3 className="text-2xl desk:text-3xl font-bold text-purple-950 leading-tight">{title}</h3>
+      <p className="text-base desk:text-lg text-purple-900">{description}</p>
       {info && <InfoBox className="bg-white/50 border-purple-300 text-purple-900">{info}</InfoBox>}
     </div>
     <div className="min-w-0">{children}</div>
@@ -331,6 +325,12 @@ export default function InteractiveGuide({ open, onClose }) {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(entryUrl)}&color=4C1D95&bgcolor=ffffff&qzone=1&format=png`
     : "";
 
+  // Telefono/tablet: si usa il dito e la dashboard non ha la barra laterale (stessa soglia "desk" di Tailwind)
+  const isTouch = window.matchMedia?.("(pointer: coarse)").matches;
+  const isDesk = window.matchMedia?.("(min-width: 1024px) and (min-height: 500px)").matches;
+  // Dove si riapre la guida: barra laterale da computer, pannello "Altro" su telefono e tablet
+  const guideMenu = isDesk ? "dal menu laterale" : "dal menu \"Altro\" in basso";
+
   // --------------------------------------------------------------------------
   // SCHERMATE (funzioni di render, NON componenti: così gli input non perdono il focus)
   // --------------------------------------------------------------------------
@@ -410,7 +410,7 @@ export default function InteractiveGuide({ open, onClose }) {
                   {/* Manina animata che indica il toggle */}
                   {!v.active && (
                     <div className="absolute top-full right-0 mt-1 flex items-center gap-2 pointer-events-none z-10">
-                      <span className="text-xs font-medium text-purple-300 whitespace-nowrap">Clicca qui per avviare</span>
+                      <span className="text-xs font-medium text-purple-300 whitespace-nowrap">{isTouch ? "Tocca" : "Clicca"} qui per avviare</span>
                       <span className="animate-bounce text-3xl select-none leading-none" aria-hidden="true">👆</span>
                     </div>
                   )}
@@ -449,13 +449,13 @@ export default function InteractiveGuide({ open, onClose }) {
         </div>
       </div>
       <InfoBox className="mx-2 md:mx-4 py-4">
-        Se chiudi questa guida, non ti verrà più mostrata automaticamente. Potrai sempre riaprirla dal menu laterale.
+        Se chiudi questa guida, non ti verrà più mostrata automaticamente. Potrai sempre riaprirla {guideMenu}.
       </InfoBox>
-      <div className="flex flex-wrap items-center justify-between gap-4 px-2 md:px-4">
-        <RealOpsNote />
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:justify-end px-2 md:px-4">
+        {/* Su telefono "Inizia la guida" è in alto e a tutta larghezza */}
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
           <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={requestClose}>Chiudi</Button>
-          <Button className={cn(primaryBtn, "h-12 px-6")} onClick={() => setStage(0)}>
+          <Button className={cn(primaryBtn, "h-12 px-6 w-full sm:w-auto")} onClick={() => setStage(0)}>
             Inizia la guida <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
@@ -687,14 +687,15 @@ export default function InteractiveGuide({ open, onClose }) {
                   <Flame className="w-3 h-3 text-orange-400" /> Richiesta libera
                 </div>
               )}
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
+              {/* Stessa impaginazione della sezione Prenotazioni: su telefono e tablet i pulsanti vanno sotto */}
+              <div className="flex flex-col desk:flex-row desk:items-center desk:justify-between gap-3">
+                <div className="flex items-start desk:items-center gap-3 desk:gap-4 flex-1 min-w-0">
                   <div className="w-10 h-10 bg-purple-900/50 border border-purple-700/50 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-bold text-purple-400">{booking.user_name?.[0]}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-8 mb-1 flex-wrap">
-                      <span className="font-medium text-white">{booking.user_name}</span>
+                    <div className="flex items-center gap-x-3 desk:gap-x-8 gap-y-1 mb-1 flex-wrap">
+                      <span className="font-medium text-white break-words">{booking.user_name}</span>
                       {booking.status === "accepted" ? (
                         <Badge className="bg-green-900/50 text-green-300 border-green-700/50">Accettata</Badge>
                       ) : (
@@ -704,7 +705,7 @@ export default function InteractiveGuide({ open, onClose }) {
                         Tonalità: {booking.key === "0" ? "Originale" : booking.key}
                       </Badge>
                     </div>
-                    <div className="text-sm text-gray-400 truncate">{booking.song}</div>
+                    <div className="text-sm text-gray-300 desk:text-gray-400 break-words">{booking.song}</div>
                     {booking.notes && (
                       <div className="mt-1.5 flex items-start gap-1.5 text-xs bg-purple-950/30 border border-purple-900/30 p-2 rounded md:max-w-[90%]">
                         <span className="text-purple-400 font-semibold select-none">Note:</span>
@@ -716,14 +717,14 @@ export default function InteractiveGuide({ open, onClose }) {
                 </div>
 
                 {/* Pulsanti solo illustrativi */}
-                <div className="flex gap-2 flex-shrink-0 items-center pointer-events-none select-none" aria-hidden="true">
+                <div className="flex gap-2 desk:flex-shrink-0 items-center pointer-events-none select-none [&>button]:h-11 desk:[&>button]:h-9" aria-hidden="true">
                   {booking.status !== "accepted" && (
-                    <Button size="sm" tabIndex={-1} className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+                    <Button size="sm" tabIndex={-1} className="flex-1 desk:flex-none bg-gradient-to-r from-green-600 to-green-700 text-white">
                       <CheckCircle className="w-4 h-4 mr-2" /> Accetta
                     </Button>
                   )}
-                  <Button size="sm" variant="ghost" tabIndex={-1} className="text-red-400"><Trash2 className="w-4 h-4" /></Button>
-                  <Button size="sm" variant="ghost" tabIndex={-1} className="text-purple-300"><Copy className="w-4 h-4 mr-1.5" /></Button>
+                  <Button size="sm" variant="ghost" tabIndex={-1} className={cn(booking.status !== "accepted" ? "w-14" : "flex-1", "desk:w-auto desk:flex-none text-red-400 bg-red-950/20 desk:bg-transparent")}><Trash2 className="w-4 h-4" /></Button>
+                  <Button size="sm" variant="ghost" tabIndex={-1} className={cn(booking.status !== "accepted" ? "w-14" : "flex-1", "desk:w-auto desk:flex-none text-purple-300 bg-purple-950/30 desk:bg-transparent")}><Copy className="w-4 h-4 desk:mr-1.5" /></Button>
                 </div>
               </div>
             </div>
@@ -800,15 +801,13 @@ export default function InteractiveGuide({ open, onClose }) {
   );
 
   const renderFooter = () => (
-    <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-purple-500/30">
-      <div className="flex flex-wrap items-center gap-6">
-        <button className="flex items-center gap-2 text-white hover:text-purple-200" onClick={() => setStage(stage - 1)}>
-          <ArrowLeft className="w-4 h-4" /> Passaggio precedente
-        </button>
-        {stage < 4 && <RealOpsNote />}
-      </div>
+    // Su telefono l'ordine si inverte: "Avanti" in alto a tutta larghezza, poi "Esci", poi "Passaggio precedente"
+    <div className="flex flex-col-reverse sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4 pt-4 border-t border-purple-500/30">
+      <button className="flex items-center justify-center sm:justify-start gap-2 py-2 sm:py-0 text-white hover:text-purple-200" onClick={() => setStage(stage - 1)}>
+        <ArrowLeft className="w-4 h-4" /> Passaggio precedente
+      </button>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3 [&>button]:w-full sm:[&>button]:w-auto">
         {stage < 4 ? (
           <>
             <Button className={cn(outlineBtn, "h-11 px-5")} onClick={requestClose}>Esci dalla guida</Button>
@@ -853,7 +852,10 @@ export default function InteractiveGuide({ open, onClose }) {
             </button>
 
             {stage >= 0 && renderHeader()}
-            <Stepper current={stage} onSelect={setStage} />
+            {/* Nel benvenuto non c'è l'intestazione: su telefono lasciamo spazio alla X sopra i passaggi */}
+            <div className={stage === -1 ? "pt-8 md:pt-0" : undefined}>
+              <Stepper current={stage} onSelect={setStage} />
+            </div>
 
             {stage === -1 && renderWelcome()}
             {stage === 0 && renderCreateVenue()}
@@ -873,7 +875,7 @@ export default function InteractiveGuide({ open, onClose }) {
           <div className="w-full max-w-md rounded-2xl border border-purple-400/60 bg-gradient-to-br from-[#2a0f4d] to-[#3b1270] p-6 space-y-4 shadow-2xl">
             <h3 className="text-2xl font-bold text-white">Vuoi uscire dalla guida?</h3>
             <p className="text-purple-100/90">
-              La guida non verrà più mostrata automaticamente, ma potrai riaprirla in qualsiasi momento dal menu laterale.
+              La guida non verrà più mostrata automaticamente, ma potrai riaprirla in qualsiasi momento {guideMenu}.
             </p>
             <div className="flex flex-wrap justify-end gap-3 pt-2">
               <Button className={primaryBtn} onClick={() => setConfirmExit(false)} disabled={exiting}>
